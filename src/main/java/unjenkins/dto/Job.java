@@ -1,60 +1,67 @@
 package unjenkins.dto;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
 public class Job {
 
-    private String displayName;
-    private List<Build> builds = new ArrayList<Build>();
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private String name;
+    private String url;
+    private String color;
 
     /**
      *
      * @return
-     * The displayName
+     * The name
      */
-    public String getDisplayName() {
-        return displayName;
+    public String getName() {
+        return name;
     }
 
     /**
      *
-     * @param displayName
-     * The displayName
+     * @param name
+     * The name
      */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
      *
      * @return
-     * The builds
+     * The url
      */
-    public List<Build> getBuilds() {
-        return builds;
+    public String getUrl() {
+        return url;
     }
 
     /**
      *
-     * @param builds
-     * The builds
+     * @param url
+     * The url
      */
-    public void setBuilds(List<Build> builds) {
-        this.builds = builds;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
+    /**
+     *
+     * @return
+     * The color
+     */
+    public String getColor() {
+        return color;
     }
 
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
+    /**
+     *
+     * @param color
+     * The color
+     */
+    public void setColor(String color) {
+        this.color = color;
     }
 
 }
