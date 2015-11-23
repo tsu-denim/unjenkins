@@ -1,4 +1,4 @@
-package unjenkins.dto;
+package unjenkins.client.dto;
 
 import java.util.HashMap;
 import java.util.Map;

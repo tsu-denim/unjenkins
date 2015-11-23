@@ -4,7 +4,7 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import unjenkins.proxy.JenkinsResource;
+import unjenkins.client.proxy.JenkinsResource;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -19,7 +19,7 @@ public class JenkinsConsumer {
     private static Client restClient = ClientBuilder.newClient();
     public static JenkinsResource jenkinsResource;
 
-    public static void initializeServer() throws IOException {
+    public static void initializeClient() throws IOException {
 
         //Required for accessing https connection using self signed ssl cert
         //Prereq to avoid runtime error: Use cmd line program 'keytool' to configure local machine
@@ -38,6 +38,14 @@ public class JenkinsConsumer {
 
 
     }
+
+    //public static get view information
+
+    //public static get job information
+
+    //public static get build info
+
+
 
 
 }

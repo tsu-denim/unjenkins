@@ -1,12 +1,12 @@
 import unjenkins.client.JenkinsConsumer;
-import unjenkins.dto.BuildDetail;
-import unjenkins.dto.JobStats;
-import unjenkins.dto.View;
+import unjenkins.client.dto.BuildDetail;
+import unjenkins.client.dto.JobStats;
+import unjenkins.client.dto.View;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-
-
+import java.util.ArrayList;
 
 
 /**
@@ -16,26 +16,42 @@ import java.net.URLEncoder;
 public class Main {
 
     public static void main(String[] stringargs) throws IOException {
-        JenkinsConsumer.initializeServer();
-
-        String jobname = "content-management-service-tests-dev";
-
-        JobStats jobStats = JenkinsConsumer.jenkinsResource.getJob(jobname,
-                URLEncoder.encode("displayName[displayName],builds[number,url]", "UTF-8"));
-        Integer buildNumber = jobStats.getBuilds().get(0).getNumber();
-
-        BuildDetail build = JenkinsConsumer.jenkinsResource.getBuildDetail(jobname, buildNumber,
-                URLEncoder.encode("actions[failCount,skipCount,totalCount],result[result],number[number],building[building],url[url]", "UTF-8"));
-
-        View view = JenkinsConsumer.jenkinsResource.getSubView("Content Management", "CM API and UI");
+        JenkinsConsumer.initializeClient();
+        callJenkins("Content Management", "CM API and UI");
 
 
+    }
 
-        System.out.println(jobStats.getDisplayName());
-        System.out.println(build.getNumber());
-        System.out.println(build.getTestResults().getTotalCount());
-        System.out.println(view.getName());
-        System.in.read();
+    public static void callJenkins (String viewName, String subViewName) throws IOException {
 
+        View view = JenkinsConsumer.jenkinsResource.getSubView(viewName, subViewName);
+
+        ArrayList<JobStats> jobStatses = new ArrayList<JobStats>();
+        view.getJobs().stream().parallel().forEach(t -> {
+            try {
+                jobStatses.add(JenkinsConsumer.jenkinsResource.getJob(t.getName(),
+                        URLEncoder.encode("displayName[displayName],builds[number,url]", "UTF-8")));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        });
+
+        ArrayList<BuildDetail> buildDetails = new ArrayList<BuildDetail>();
+
+                jobStatses.forEach(t -> {
+            t.getBuilds().stream().parallel().forEach(m -> {
+                try {
+                    buildDetails.add(JenkinsConsumer.jenkinsResource.getBuildDetail(t.getDisplayName(), m.getNumber(),
+                            URLEncoder.encode("actions[failCount,skipCount,totalCount],result[result],number[number],building[building],url[url]", "UTF-8")));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+
+
+
+
+       System.in.read();
     }
 }

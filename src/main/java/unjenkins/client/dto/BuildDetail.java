@@ -1,8 +1,7 @@
-package unjenkins.dto;
+package unjenkins.client.dto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Stream;
 import javax.annotation.Generated;
 
