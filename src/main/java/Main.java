@@ -27,7 +27,7 @@ public class Main {
         View view = JenkinsConsumer.jenkinsResource.getSubView(viewName, subViewName);
 
         ArrayList<JobStats> jobStatses = new ArrayList<JobStats>();
-        view.getJobs().stream().parallel().forEach(t -> {
+        view.getJobs().stream().filter(t -> t.getName().contains("test")).forEach(t -> {
             try {
                 jobStatses.add(JenkinsConsumer.jenkinsResource.getJob(t.getName(),
                         URLEncoder.encode("displayName[displayName],builds[number,url]", "UTF-8")));

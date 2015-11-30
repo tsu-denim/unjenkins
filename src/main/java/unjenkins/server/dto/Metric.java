@@ -1,4 +1,4 @@
-package unjenkins.server;
+package unjenkins.server.dto;
 
 import unjenkins.server.dto.JobStatus;
 
