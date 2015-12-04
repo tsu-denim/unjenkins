@@ -1,4 +1,4 @@
-package unjenkins.server.dto;
+package com.kodz.unjenkins.server.dto;
 
 import java.util.ArrayList;
 import java.util.List;

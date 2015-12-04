@@ -1,13 +1,14 @@
-package unjenkins.client.dto;
+package com.kodz.unjenkins.client.dto;
 
 import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
 public class Action {
 
-    private Integer failCount;
-    private Integer skipCount;
-    private Integer totalCount;
+    private Integer failCount ;
+    private Integer skipCount ;
+    private Integer totalCount ;
+    private Integer passedCount ;
 
     /**
      *
@@ -63,4 +64,11 @@ public class Action {
         this.totalCount = totalCount;
     }
 
+    public Integer getPassedCount() {
+        return passedCount;
+    }
+
+    public void setPassedCount(Integer passedCount) {
+        this.passedCount = passedCount;
+    }
 }

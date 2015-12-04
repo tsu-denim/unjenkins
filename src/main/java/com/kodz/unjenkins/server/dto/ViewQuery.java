@@ -1,6 +1,4 @@
-package unjenkins.server.dto;
-
-import java.util.Date;
+package com.kodz.unjenkins.server.dto;
 
 /**
  * Created by Kurt on 12/1/15.
@@ -8,22 +6,22 @@ import java.util.Date;
 public class ViewQuery {
     private String name = null;
     private String folder = null;
-    private String filter = null;
+    private String regexFilter = null;
 
 
     public ViewQuery(){
 
     };
 
-    public ViewQuery(String name, String filter){
+    public ViewQuery(String name, String regexFilter){
         this.name = name;
-        this.filter = filter;
+        this.regexFilter = regexFilter;
     }
 
-    public ViewQuery(String name, String folder, String filter){
+    public ViewQuery(String name, String folder, String regexFilter){
         this.name = name;
         this.folder = folder;
-        this.filter = filter;
+        this.regexFilter = regexFilter;
     }
 
     public String getName() {
@@ -34,12 +32,12 @@ public class ViewQuery {
         this.name = name;
     }
 
-    public String getFilter() {
-        return filter;
+    public String getRegexFilter() {
+        return regexFilter;
     }
 
-    public void setFilter(String filter) {
-        this.filter = filter;
+    public void setRegexFilter(String regexFilter) {
+        this.regexFilter = regexFilter;
     }
 
     public String getFolder() {

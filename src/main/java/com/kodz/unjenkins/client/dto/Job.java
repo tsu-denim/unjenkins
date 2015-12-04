@@ -1,4 +1,4 @@
-package unjenkins.client.dto;
+package com.kodz.unjenkins.client.dto;
 
 
 import javax.annotation.Generated;

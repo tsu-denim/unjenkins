@@ -1,8 +1,8 @@
-package unjenkins.client.dto;
+package com.kodz.unjenkins.client.dto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
@@ -105,9 +105,26 @@ public class BuildDetail {
     }
 
     public Action getTestResults(){
+        //TODO: Add support for multiple configuration jobs
         Action action = new Action();
-        Stream<Action> actionStream = actions.stream().filter(t -> (t.getFailCount() != null && t.getSkipCount() != null && t.getTotalCount() != null)).limit(1L);
-        action = actionStream.findFirst().get();
+        ArrayList<Action> actionList = new ArrayList<Action>();
+        actionList = actions.stream().filter(t -> (t.getFailCount() != null && t.getSkipCount() != null && t.getTotalCount() != null))
+                .limit(1L)
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (actionList.size()==1){
+            action = actionList.get(0);
+            action.setPassedCount(action.getTotalCount() - (action.getFailCount() + action.getSkipCount()));
+        }
+        else {
+            if (this.getResult() != "ABORTED"){
+                this.setResult("CORRUPT");
+            }
+            action.setPassedCount(0);
+            action.setFailCount(0);
+            action.setSkipCount(0);
+            action.setTotalCount(0);
+        }
+
         return action;
     }
 

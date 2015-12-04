@@ -1,10 +1,10 @@
-package unjenkins.client;
+package com.kodz.unjenkins.client;
 
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import unjenkins.client.proxy.JenkinsResource;
+import com.kodz.unjenkins.client.proxy.JenkinsResource;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;

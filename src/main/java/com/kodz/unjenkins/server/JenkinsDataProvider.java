@@ -1,13 +1,13 @@
-package unjenkins.server;
+package com.kodz.unjenkins.server;
 
-import unjenkins.client.JenkinsConsumer;
-import unjenkins.client.dto.BuildDetail;
-import unjenkins.client.dto.JobStats;
-import unjenkins.client.dto.View;
-import unjenkins.server.dto.BuildStatus;
-import unjenkins.server.dto.JobStatus;
-import unjenkins.server.dto.Metric;
-import unjenkins.server.dto.ViewQuery;
+import com.kodz.unjenkins.client.JenkinsConsumer;
+import com.kodz.unjenkins.client.dto.View;
+import com.kodz.unjenkins.server.dto.BuildStatus;
+import com.kodz.unjenkins.server.dto.JobStatus;
+import com.kodz.unjenkins.server.dto.ViewQuery;
+import com.kodz.unjenkins.client.dto.BuildDetail;
+import com.kodz.unjenkins.client.dto.JobStats;
+import com.kodz.unjenkins.server.dto.Metric;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -28,7 +28,7 @@ public class JenkinsDataProvider {
                 //only look at metrics matching view name and name filter
                 .filter(t -> {
                     return ((t.getViewQuery().getName() == viewQuery.getName())
-                            && (t.getViewQuery().getFilter() == viewQuery.getFilter()));
+                            && (t.getViewQuery().getRegexFilter() == viewQuery.getRegexFilter()));
                 }).count() > 0){
             //get from existing cache and update if necessary
             return getCachedMetric(viewQuery);
@@ -45,7 +45,7 @@ public class JenkinsDataProvider {
                 //only look at metrics matching view name and name filter
                 .filter(t -> {
                     return ((t.getViewQuery().getName() == viewQuery.getName())
-                            && (t.getViewQuery().getFilter() == viewQuery.getFilter()));
+                            && (t.getViewQuery().getRegexFilter() == viewQuery.getRegexFilter()));
                 })
                 //refresh metric if out of date
                 .forEach(t -> {
@@ -78,16 +78,14 @@ public class JenkinsDataProvider {
 
         View view = getCurrentView(viewQuery);
 
-        getStatuses(view, viewQuery.getFilter()).forEach(t -> {
+        getStatuses(view, viewQuery.getRegexFilter()).forEach(t -> {
             JobStatus status = new JobStatus();
             status.setName(t.getDisplayName());
             t.getBuilds().stream().parallel().forEach(m -> {
                 try {
                     BuildDetail buildDetail = JenkinsConsumer.jenkinsResource.getBuildDetail(t.getDisplayName(), m.getNumber(),
                             URLEncoder.encode("actions[failCount,skipCount,totalCount],result[result],number[number],building[building],url[url]", "UTF-8"));
-                    BuildStatus buildStatus = new BuildStatus();
-                    buildStatus.setBuildDetail(buildDetail);
-                    status.getBuildStatusList().add(buildStatus);
+                    status.getBuildStatusList().add(new BuildStatus(buildDetail));
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
@@ -111,7 +109,7 @@ public class JenkinsDataProvider {
 
     private static ArrayList<JobStats> getStatuses(View view, String viewFilter){
         ArrayList<JobStats> jobStatuses = new ArrayList<JobStats>();
-        view.getJobs().stream().filter(t -> t.getName().contains(viewFilter)).forEach(t -> {
+        view.getJobs().stream().filter(t -> t.getName().matches(viewFilter)).forEach(t -> {
             try {
                 jobStatuses.add(JenkinsConsumer.jenkinsResource.getJob(t.getName(),
                         URLEncoder.encode("displayName[displayName],builds[number,url]", "UTF-8")));

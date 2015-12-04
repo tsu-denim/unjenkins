@@ -1,9 +1,6 @@
-package unjenkins.server.dto;
-
-import unjenkins.server.dto.JobStatus;
+package com.kodz.unjenkins.server.dto;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by Kurt on 11/23/15.

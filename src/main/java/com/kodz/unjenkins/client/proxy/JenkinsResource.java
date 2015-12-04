@@ -1,8 +1,8 @@
-package unjenkins.client.proxy;
+package com.kodz.unjenkins.client.proxy;
 
-import unjenkins.client.dto.BuildDetail;
-import unjenkins.client.dto.JobStats;
-import unjenkins.client.dto.View;
+import com.kodz.unjenkins.client.dto.View;
+import com.kodz.unjenkins.client.dto.BuildDetail;
+import com.kodz.unjenkins.client.dto.JobStats;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
