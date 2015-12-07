@@ -57,6 +57,7 @@ public class JenkinsDataProvider {
                     else{
                         //do not update list and set return value to existing cached value
                         setCurrentMetric(t);
+                        System.out.println(viewQuery.getName() + " dashboard found in cache within timeout");
                     }
                 });
 

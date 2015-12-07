@@ -1,5 +1,7 @@
 package com.kodz.unjenkins;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.kodz.unjenkins.client.JenkinsConsumer;
 import com.kodz.unjenkins.server.JenkinsDataProvider;
 import com.kodz.unjenkins.server.dto.Metric;

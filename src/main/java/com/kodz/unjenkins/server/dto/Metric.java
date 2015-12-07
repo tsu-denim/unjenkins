@@ -1,5 +1,8 @@
 package com.kodz.unjenkins.server.dto;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 
 /**
@@ -27,6 +30,7 @@ public class Metric {
         this.viewQuery = viewQuery;
     }
 
+    @JsonIgnore
     public long getRefreshDate() {
         return refreshDate;
     }
