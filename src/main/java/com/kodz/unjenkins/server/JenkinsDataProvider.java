@@ -12,6 +12,7 @@ import com.kodz.unjenkins.server.dto.Metric;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by Kurt on 11/30/15.
@@ -91,6 +92,7 @@ public class JenkinsDataProvider {
                     e.printStackTrace();
                 }
             });
+            Collections.sort(status.getBuildStatusList());
             metric.getJobStatusArrayList().add(status);
         });
         metric.setRefreshDate(System.currentTimeMillis());
@@ -113,7 +115,7 @@ public class JenkinsDataProvider {
         view.getJobs().stream().filter(t -> t.getName().matches(viewFilter)).forEach(t -> {
             try {
                 jobStatuses.add(JenkinsConsumer.jenkinsResource.getJob(t.getName(),
-                        URLEncoder.encode("displayName[displayName],builds[number,url]", "UTF-8")));
+                        URLEncoder.encode("displayName[displayName],builds[number,url]{0,5}", "UTF-8")));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

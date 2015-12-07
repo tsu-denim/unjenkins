@@ -2,6 +2,7 @@ package com.kodz.unjenkins.server.dto;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 
@@ -13,7 +14,7 @@ public class Metric {
     private ViewQuery viewQuery;
     private long refreshDate;
 
-
+    @JsonProperty("jobs")
     public ArrayList<JobStatus> getJobStatusArrayList() {
         return jobStatusArrayList;
     }
@@ -22,6 +23,7 @@ public class Metric {
         this.jobStatusArrayList = jobStatusArrayList;
     }
 
+    @JsonIgnore
     public ViewQuery getViewQuery() {
         return viewQuery;
     }

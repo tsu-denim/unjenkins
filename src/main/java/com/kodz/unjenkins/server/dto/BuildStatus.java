@@ -1,12 +1,15 @@
 package com.kodz.unjenkins.server.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.kodz.unjenkins.client.dto.Action;
 import com.kodz.unjenkins.client.dto.BuildDetail;
 
 /**
  * Created by Kurt on 11/23/15.
  */
-public class BuildStatus {
+
+public class BuildStatus implements Comparable{
     private int passedTestCount;
     private int failedTestCount;
     private int totalTestCount;
@@ -157,5 +160,17 @@ public class BuildStatus {
 
     public String getUrl() {
         return url;
+    }
+
+   @Override
+    public int compareTo(Object buildStatus){
+        int compareStatus = ((BuildStatus)buildStatus).getBuildNumber();
+        return compareStatus - this.getBuildNumber();
+
+    }
+
+    @Override
+    public String toString(){
+        return "";
     }
 }

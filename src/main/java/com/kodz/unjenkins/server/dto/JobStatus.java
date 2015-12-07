@@ -1,5 +1,7 @@
 package com.kodz.unjenkins.server.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +19,7 @@ public class JobStatus {
     public void setName(String name) {
         this.name = name;
     }
-
+    @JsonProperty("builds")
     public List<BuildStatus> getBuildStatusList() {
         return buildStatusList;
     }
