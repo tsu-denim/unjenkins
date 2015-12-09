@@ -8,7 +8,9 @@ import com.kodz.unjenkins.server.dto.ViewQuery;
 import com.kodz.unjenkins.client.dto.BuildDetail;
 import com.kodz.unjenkins.client.dto.JobStats;
 import com.kodz.unjenkins.server.dto.Metric;
+import com.kodz.unjenkins.server.exceptions.ViewNotFound;
 
+import javax.ws.rs.client.ResponseProcessingException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -24,7 +26,7 @@ public class JenkinsDataProvider {
     static long timeout = 10000L;
 
 
-    public static Metric getMetric(ViewQuery viewQuery){
+    public static Metric getMetric(ViewQuery viewQuery) throws ViewNotFound {
         if (cachedMetrics.stream()
                 //only look at metrics matching view name and name filter
                 .filter(t -> {
@@ -41,7 +43,7 @@ public class JenkinsDataProvider {
 
     }
 
-    private static Metric getCachedMetric(ViewQuery viewQuery){
+    private static Metric getCachedMetric(ViewQuery viewQuery) throws ViewNotFound{
         cachedMetrics.stream()
                 //only look at metrics matching view name and name filter
                 .filter(t -> {
@@ -52,7 +54,11 @@ public class JenkinsDataProvider {
                 .forEach(t -> {
                     if ((System.currentTimeMillis() - t.getRefreshDate()) > timeout){
                         //update list, set return value
-                        setCurrentMetric(getNewMetric(viewQuery));
+                        try {
+                            setCurrentMetric(getNewMetric(viewQuery));
+                        } catch (ViewNotFound viewNotFound) {
+                            viewNotFound.printStackTrace();
+                        }
                         t = getCurrentMetric();
                     }
                     else{
@@ -73,7 +79,7 @@ public class JenkinsDataProvider {
         JenkinsDataProvider.currentMetric = currentMetric;
     }
 
-    private static Metric getNewMetric(ViewQuery viewQuery){
+    private static Metric getNewMetric(ViewQuery viewQuery) throws ViewNotFound {
 
         Metric metric = new Metric();
         metric.setViewQuery(viewQuery);
@@ -99,13 +105,18 @@ public class JenkinsDataProvider {
         return metric;
     }
 
-    private static View getCurrentView(ViewQuery viewQuery){
+    private static View getCurrentView(ViewQuery viewQuery) throws ViewNotFound {
         View view;
         if (viewQuery.isSubView() == true){
             view =  JenkinsConsumer.jenkinsResource.getSubView(viewQuery.getName(), viewQuery.getFolder());
         }
         else {
-            view =  JenkinsConsumer.jenkinsResource.getView(viewQuery.getName());
+            try{
+                view =  JenkinsConsumer.jenkinsResource.getView(viewQuery.getName());
+            }
+            catch (ResponseProcessingException e){
+            throw new ViewNotFound();
+            }
         }
         return view;
     }

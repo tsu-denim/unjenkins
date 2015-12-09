@@ -13,13 +13,13 @@ public class ViewQuery {
 
     };
 
-    public ViewQuery(String name, String regexFilter){
-        this.name = name;
+    public ViewQuery(String viewName, String regexFilter){
+        this.name = viewName;
         this.regexFilter = regexFilter;
     }
 
-    public ViewQuery(String name, String folder, String regexFilter){
-        this.name = name;
+    public ViewQuery(String viewName, String folder, String regexFilter){
+        this.name = viewName;
         this.folder = folder;
         this.regexFilter = regexFilter;
     }
