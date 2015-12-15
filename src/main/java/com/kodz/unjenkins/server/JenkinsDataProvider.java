@@ -42,68 +42,37 @@ public class JenkinsDataProvider {
             return getCachedMetric(viewQuery);
         }
         //View and filter combination not yet in cache, add to cache and return
+        System.out.println("Cache item not found, adding " + viewQuery.getName() + " to cache.");
         Metric metric = getNewMetric(viewQuery);
         cachedMetrics.add(metric);
         return metric;
-
     }
 
     private static Metric getCachedMetric(ViewQuery viewQuery) throws ViewNotFound{
 
         for (int i = 0; i<cachedMetrics.size();i++ ){
-            Metric t = cachedMetrics.get(i)
-           if ((t.getViewQuery().getName() == viewQuery.getName())
-                    && (t.getViewQuery().getRegexFilter() == viewQuery.getRegexFilter())){
-               if ((System.currentTimeMillis() - t.getRefreshDate()) > timeout){
+            Metric metric = cachedMetrics.get(i);
+           if ((metric.getViewQuery().getName() == viewQuery.getName())
+                    && (metric.getViewQuery().getRegexFilter() == viewQuery.getRegexFilter())){
+               if ((System.currentTimeMillis() - metric.getRefreshDate()) > timeout){
                    System.out.println(viewQuery.getName() + " not found, reloading cache");
                    //update list, set return value
                    try {
-                       setCurrentMetric(getNewMetric(viewQuery));
-                       setStaleMetric(t);
-
+                       currentMetric = getNewMetric(viewQuery);
+                       cachedMetrics.set(i, currentMetric);
                    } catch (ViewNotFound viewNotFound) {
                        viewNotFound.printStackTrace();
                    }
                }
                else{
                    //do not update list and set return value to existing cached value
-                   setCurrentMetric(t);
+                   currentMetric=cachedMetrics.get(i);
                    System.out.println(viewQuery.getName() + " dashboard found in cache within timeout");
                }
            }
         }
 
-        cachedMetrics.removeIf(t -> {
-            return ((t.getViewQuery().getName() == viewQuery.getName())
-                    && (t.getViewQuery().getRegexFilter() == viewQuery.getRegexFilter())
-                    && t.getRefreshDate() == getStaleMetric().getRefreshDate());
-        });
-        cachedMetrics.add(getCurrentMetric());
-        return getCurrentMetric();
-    }
-
-    private static Metric getCurrentMetric() {
         return currentMetric;
-    }
-
-    private static void setCurrentMetric(Metric currentMetric) {
-        JenkinsDataProvider.currentMetric = currentMetric;
-    }
-
-    public static boolean isMetricStale() {
-        return isMetricStale;
-    }
-
-    public static void setIsMetricStale(boolean isMetricStale) {
-        JenkinsDataProvider.isMetricStale = isMetricStale;
-    }
-
-    public static Metric getStaleMetric() {
-        return staleMetric;
-    }
-
-    public static void setStaleMetric(Metric staleMetric) {
-        JenkinsDataProvider.staleMetric = staleMetric;
     }
 
     private static Metric getNewMetric(ViewQuery viewQuery) throws ViewNotFound {
