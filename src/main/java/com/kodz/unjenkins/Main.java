@@ -34,7 +34,6 @@ public class Main {
     }
 
     private static Server configureServer() {
-        System.out.println(Main.class.getCanonicalName());
         ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.packages("com.kodz.unjenkins");
         resourceConfig.register(JacksonFeature.class);
