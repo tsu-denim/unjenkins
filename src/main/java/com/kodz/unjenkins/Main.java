@@ -1,11 +1,6 @@
 package com.kodz.unjenkins;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.kodz.unjenkins.client.JenkinsConsumer;
-import com.kodz.unjenkins.server.JenkinsDataProvider;
-import com.kodz.unjenkins.server.dto.Metric;
-import com.kodz.unjenkins.server.dto.ViewQuery;
 import org.eclipse.jetty.server.Server;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
