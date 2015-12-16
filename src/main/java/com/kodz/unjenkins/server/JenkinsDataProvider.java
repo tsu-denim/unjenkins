@@ -48,7 +48,7 @@ public class JenkinsDataProvider {
         return metric;
     }
 
-    private static Metric getCachedMetric(ViewQuery viewQuery) throws ViewNotFound{
+    private synchronized static Metric getCachedMetric(ViewQuery viewQuery) throws ViewNotFound{
 
         for (int i = 0; i<cachedMetrics.size();i++ ){
             Metric metric = cachedMetrics.get(i);
