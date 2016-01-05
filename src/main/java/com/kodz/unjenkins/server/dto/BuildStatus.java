@@ -9,7 +9,7 @@ import com.kodz.unjenkins.client.dto.BuildDetail;
  * Created by Kurt on 11/23/15.
  */
 
-public class BuildStatus implements Comparable{
+public class BuildStatus implements Comparable<BuildStatus>{
     private int passedTestCount;
     private int failedTestCount;
     private int totalTestCount;
@@ -163,10 +163,15 @@ public class BuildStatus implements Comparable{
     }
 
    @Override
-    public int compareTo(Object buildStatus){
-        int compareStatus = ((BuildStatus)buildStatus).getBuildNumber();
-        return compareStatus - this.getBuildNumber();
-
+    public int compareTo(BuildStatus buildStatus){
+       try {
+           int compareStatus = (buildStatus).getBuildNumber();
+           return compareStatus - this.getBuildNumber();
+       }
+        catch (NullPointerException e){
+            System.out.println("Null build status, returning 1 for comparison.");
+            return 1;
+        }
     }
 
     @Override

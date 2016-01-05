@@ -25,7 +25,6 @@ public class Main {
         server.setStopTimeout(3000L);
         server.start();
         server.join();
-
     }
 
     private static Server configureServer() {
