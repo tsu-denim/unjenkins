@@ -1,29 +1,17 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This is the un-jenkins repository, which contains the source for un-jenkins. un-jenkins is a rest-based web server written in Java that provides a simple api for retrieving dashboard like metrics from Jenkins.  
 
-### What is this repository for? ###
+### Whats so great about un-jenkins? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* un-jenkins will provide a rest response containing the recent build outcomes of all the jobs within a given view.
+* It takes many api calls to talk to Jenkins, which we all surely want to do less of to do a quick checkup on the health of our pipelines.
+* Data is real time and only includes up to the last 5 (configurable) builds retained within Jenkins.
+* It enables anyone to create a simple rest client that can visualize or consume the LIVE data.
+* Caches data according to a configurable timeout, alleviating concerns about overburdening Jenkins. 
+* Fast! un-jenkins uses Jersey, Jackson, and embedded Jetty to handle all http/json.
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+* To set up, pull the master branch and connect to dca/tca via open vpn.
+* Deployment instructions: Run mvn clean install -U on the repository and a single jar file will be created in the target folder. This is an UBER jar! It contains all the libraries needed to run, making distribution a snap! Starting the server requires a simple command "java -jar unjenkins-snapshot-vX.X.jar"
