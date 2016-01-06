@@ -70,13 +70,14 @@ public class Main {
 
         int serverPort = DEFAULT_PORT;
 
-        if (args.length >= 1){
-            if (args[0] == "stop")
+
+            if (args[0] == "stop"){
                 Main.stopServer();
         }
-        else if(args.length >= 1) {
+        else if(args[0] != null) {
             try {
                 serverPort = Integer.parseInt(args[0]);
+                System.out.println("Server port is set to " + serverPort);
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
