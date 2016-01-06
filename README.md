@@ -15,3 +15,5 @@ This is the un-jenkins repository, which contains the source for un-jenkins. un-
 
 * To set up, pull the master branch and connect to dca/tca via open vpn.
 * Deployment instructions: Run mvn clean install -U on the repository and a single jar file will be created in the target folder. This is an UBER jar! It contains all the libraries needed to run, making distribution a snap! Starting the server requires a simple command "java -jar unjenkins-snapshot-vX.X.jar". Place this jar file wherever you would like to run un-jenkins and fire off the command.
+* Verify the rest responses are working by accessing the test dashboard http://localhost:8080/api/dashboard. It should return a set of metrics related to the Content Management API & UI Tests.
+* Access any Jenkins view you like by appending the view/Viewname1/view/Viewname2 portion of a Jenkins url. https://jenkins.inintca.com:8443/view/Content%20Management/view/CM%20API%20and%20UI/  would become http://localhost:8080/api/view/Content%20Management/view/CM%20API%20and%20UI/. 
