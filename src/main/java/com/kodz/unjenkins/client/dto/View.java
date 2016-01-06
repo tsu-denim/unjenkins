@@ -1,10 +1,13 @@
 package com.kodz.unjenkins.client.dto;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Generated;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@Generated("org.jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class View {
 
     private Object description;
@@ -12,6 +15,7 @@ public class View {
     private String name;
     private List<Object> property = new ArrayList<Object>();
     private String url;
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
      *
@@ -101,6 +105,14 @@ public class View {
      */
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
     }
 
 }

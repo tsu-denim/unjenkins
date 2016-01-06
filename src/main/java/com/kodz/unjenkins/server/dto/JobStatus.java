@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class JobStatus {
     private String name;
-    private ArrayList<BuildStatus> buildStatusList = new ArrayList<BuildStatus>();
+    private List<BuildStatus> buildStatusList = new ArrayList<BuildStatus>();
 
     public String getName() {
         return name;
@@ -24,7 +24,7 @@ public class JobStatus {
         return buildStatusList;
     }
 
-    public void setBuildStatusList(ArrayList<BuildStatus> buildStatusList) {
+    public void setBuildStatusList(List<BuildStatus> buildStatusList) {
         this.buildStatusList = buildStatusList;
     }
 }

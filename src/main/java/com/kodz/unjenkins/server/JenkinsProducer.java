@@ -15,6 +15,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Kurt on 11/30/15.
@@ -24,7 +26,6 @@ public class JenkinsProducer {
     private static ArrayList<Metric> cachedMetrics = new ArrayList<Metric>();
     private static Metric currentMetric = new Metric();
     private static long timeToLive = 10000L;
-
 
     public synchronized static Metric getMetric(ViewQuery viewQuery) throws ViewNotFound {
         int cachedCount = 0;
@@ -40,7 +41,13 @@ public class JenkinsProducer {
         }
 
         //View and filter combination not yet in cache, add to cache and return
-        System.out.println("Cache item not found, adding " + viewQuery.getName() + " to cache.");
+        if (viewQuery.isSubView()){
+            System.out.println("Cache item not found, adding " + viewQuery.getName() + "." + viewQuery.getFolder() + " to cache.");
+        }
+        else {
+            System.out.println("Cache item not found, adding " + viewQuery.getName() + " to cache.");
+
+        }
         Metric metric = getNewMetric(viewQuery);
         cachedMetrics.add(metric);
         return metric;
@@ -53,7 +60,13 @@ public class JenkinsProducer {
            if ((metric.getViewQuery().getName().equals(viewQuery.getName()))
                     && (metric.getViewQuery().getRegexFilter().equals(viewQuery.getRegexFilter()))){
                if ((System.currentTimeMillis() - metric.getRefreshDate()) > timeToLive){
-                   System.out.println(viewQuery.getName() + " not found, reloading cache");
+                   if (viewQuery.isSubView()){
+                       System.out.println(viewQuery.getName() + "." + viewQuery.getFolder() + " cache stale, reloading.");
+                   }
+                   else {
+                       System.out.println(viewQuery.getName() + " cache stale, reloading.");
+
+                   }
                    //update list, set return value
                    try {
                        currentMetric = getNewMetric(viewQuery);
@@ -65,7 +78,13 @@ public class JenkinsProducer {
                else{
                    //do not update list and set return value to existing cached value
                    currentMetric=cachedMetrics.get(i);
-                   System.out.println(viewQuery.getName() + " dashboard found in cache within timeToLive");
+                   if (viewQuery.isSubView()){
+                       System.out.println(viewQuery.getName() + "." + viewQuery.getFolder() + " dashboard found in cache within time to live.");
+                   }
+                   else {
+                       System.out.println(viewQuery.getName() + " dashboard found in cache within time to live.");
+
+                   }
                }
            }
         }
@@ -80,21 +99,22 @@ public class JenkinsProducer {
 
         View view = getCurrentView(viewQuery);
 
-        getStatuses(view, viewQuery.getRegexFilter()).forEach(t -> {
-            JobStatus status = new JobStatus();
-            status.setName(t.getDisplayName());
-            t.getBuilds().stream().parallel().forEach(m -> {
+        for (JobStats jobStats : getStatuses(view, viewQuery.getRegexFilter())) {JobStatus status = new JobStatus();
+            status.setName(jobStats.getDisplayName());
+            List<BuildStatus> buildStatusList = jobStats.getBuilds().stream().parallel().map(t -> {
                 try {
-                    BuildDetail buildDetail = JenkinsConsumer.jenkinsResource.getBuildDetail(t.getDisplayName(), m.getNumber(),
-                            URLEncoder.encode("actions[failCount,skipCount,totalCount],result[result],number[number],building[building],url[url]", "UTF-8"));
-                    status.getBuildStatusList().add(new BuildStatus(buildDetail));
+                    BuildDetail buildDetail = JenkinsConsumer.jenkinsResource.getBuildDetail(jobStats.getDisplayName(),
+                            t.getNumber(),URLEncoder.encode("actions[failCount,skipCount,totalCount],result[result],number[number],building[building],url[url]", "UTF-8"));
+                    return new BuildStatus(buildDetail);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
+                    throw new RuntimeException();
                 }
-            });
+            }).collect(Collectors.toList());
+            status.setBuildStatusList(buildStatusList);
             Collections.sort(status.getBuildStatusList());
-            metric.getJobStatusArrayList().add(status);
-        });
+            metric.getJobStatusArrayList().add(status);} ;
+
         metric.setRefreshDate(System.currentTimeMillis());
         return metric;
     }
