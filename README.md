@@ -14,4 +14,4 @@ This is the un-jenkins repository, which contains the source for un-jenkins. un-
 ### How do I get set up? ###
 
 * To set up, pull the master branch and connect to dca/tca via open vpn.
-* Deployment instructions: Run mvn clean install -U on the repository and a single jar file will be created in the target folder. This is an UBER jar! It contains all the libraries needed to run, making distribution a snap! Starting the server requires a simple command "java -jar unjenkins-snapshot-vX.X.jar"
+* Deployment instructions: Run mvn clean install -U on the repository and a single jar file will be created in the target folder. This is an UBER jar! It contains all the libraries needed to run, making distribution a snap! Starting the server requires a simple command "java -jar unjenkins-snapshot-vX.X.jar". Place this jar file wherever you would like to run un-jenkins and fire off the command.
