@@ -1,6 +1,6 @@
 # README #
 
-This is the un-jenkins repository, which contains the source for un-jenkins. un-jenkins is a rest-based web server written in Java that provides a simple api for retrieving dashboard like metrics from Jenkins.  
+This is the un-jenkins repository, which contains the source for un-jenkins. un-jenkins is a rest-based web server application written in Java that provides a simple api for retrieving dashboard like metrics from Jenkins.  
 
 ### Whats so great about un-jenkins? ###
 
