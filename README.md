@@ -9,7 +9,7 @@ This is the un-jenkins repository, which contains the source for un-jenkins. un-
 * Data is real time and only includes up to the last 5 (value is configurable) builds retained within Jenkins.
 * It enables anyone to create a simple rest client that can visualize or consume the LIVE data, such as the [unjenkins-client](https://bitbucket.org/inindca/unjenkins-client)
 * Caches data according to a configurable timeout, alleviating concerns about overburdening Jenkins. 
-* Fast! un-jenkins uses Jersey, Jackson, and embedded Jetty to handle all http/json.
+* Fast! un-jenkins uses Jersey, Jackson, and embedded Jetty to handle all http/json. Calls to Jenkins are multi-threaded so you don't have to wait to get to that sweet sweet candy.
 
 ### How do I get set up? ###
 
