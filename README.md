@@ -7,7 +7,7 @@ This is the un-jenkins repository, which contains the source for un-jenkins. un-
 * un-jenkins provides a rest response containing the recent build outcomes of all the jobs within a given view, enabling batch consumption of real-time Jenkins metrics.
 * It takes many api calls to talk to Jenkins, which we all surely want to do less of to do a quick checkup on the health of our pipelines.
 * Data is real time and only includes up to the last 5 (value is configurable) builds retained within Jenkins.
-* It enables anyone to create a simple rest client that can visualize or consume the LIVE data.
+* It enables anyone to create a simple rest client that can visualize or consume the LIVE data, such as the [unjenkins-client](https://bitbucket.org/inindca/unjenkins-client)
 * Caches data according to a configurable timeout, alleviating concerns about overburdening Jenkins. 
 * Fast! un-jenkins uses Jersey, Jackson, and embedded Jetty to handle all http/json.
 
