@@ -8,6 +8,7 @@ import com.kodz.unjenkins.client.proxy.JenkinsResource;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -23,7 +24,7 @@ public class JenkinsConsumer {
 
         //Required for accessing https connection using self signed ssl cert
         //Prereq to avoid runtime error: Use cmd line program 'keytool' to configure local machine
-        System.setProperty("javax.net.ssl.trustStore", "/repos/un-jenkins/javakeys");
+        System.setProperty("javax.net.ssl.trustStore", getResourceFilePath("javakeys"));
         System.setProperty("javax.net.ssl.trustStorePassword", "javakeys");
 
         //Set authentication to basic, provide Jenkins username and api token
@@ -39,12 +40,14 @@ public class JenkinsConsumer {
 
     }
 
-    //public static get view information
+    public static String getResourceFilePath(String relativeFilePath) {
 
-    //public static get job information
+        //Get file from resources folder
+        ClassLoader classLoader = JenkinsConsumer.class.getClassLoader();
+        String file = classLoader.getResource(relativeFilePath).getPath();
+        return file;
 
-    //public static get build info
-
+    }
 
 
 
