@@ -42,7 +42,7 @@ public class JenkinsProducer {
 
         //View and filter combination not yet in cache, add to cache and return
         if (viewQuery.isSubView()){
-            System.out.println("Cache item not found, adding " + viewQuery.getName() + "." + viewQuery.getFolder() + " to cache.");
+            System.out.println("Cache item not found, adding " + (viewQuery.getName() + "." + viewQuery.getFolder()) + " to cache.");
         }
         else {
             System.out.println("Cache item not found, adding " + viewQuery.getName() + " to cache.");
