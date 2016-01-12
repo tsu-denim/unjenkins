@@ -44,9 +44,9 @@ public class JenkinsConsumer {
 
         //Get file from resources folder
         ClassLoader classLoader = JenkinsConsumer.class.getClassLoader();
-        String file = classLoader.getResource(relativeFilePath).getFile();
-        File file1 = new File(file);
-        return file1.getAbsolutePath();
+        String file = classLoader.getResource(relativeFilePath).getPath();
+        System.out.println(file);
+        return file;
 
     }
 
