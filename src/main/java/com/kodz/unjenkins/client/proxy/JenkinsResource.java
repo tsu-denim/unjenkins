@@ -18,6 +18,7 @@ public interface JenkinsResource {
     @GET
     @Path("/job/{jobName}/api/json")
     @Consumes(MediaType.APPLICATION_JSON)
+
     JobStats getJob(@PathParam("jobName") String jobName, @QueryParam("tree") String json);
 
     @GET

@@ -11,6 +11,7 @@ import com.kodz.unjenkins.server.dto.Metric;
 import com.kodz.unjenkins.server.exceptions.ViewNotFound;
 
 import javax.ws.rs.client.ResponseProcessingException;
+import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -129,8 +130,10 @@ public class JenkinsProducer {
                 view =  JenkinsConsumer.jenkinsResource.getView(viewQuery.getName());
             }
             catch (ResponseProcessingException e){
+                //if response status = 504, call reconnect
             throw new ViewNotFound();
             }
+
         }
         return view;
     }
