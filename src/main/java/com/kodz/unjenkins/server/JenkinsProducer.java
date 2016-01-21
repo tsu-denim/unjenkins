@@ -121,15 +121,27 @@ public class JenkinsProducer {
     }
 
     private static View getCurrentView(ViewQuery viewQuery) throws ViewNotFound {
-        View view;
+        View view = null;
         if (viewQuery.isSubView() == true){
-            view =  JenkinsConsumer.jenkinsResource.getSubView(viewQuery.getName(), viewQuery.getFolder());
+            try{
+            view =  JenkinsConsumer.jenkinsResource.getSubView(viewQuery.getName(), viewQuery.getFolder());}
+            catch (ResponseProcessingException e){
+                if (e.getResponse().getStatus() == 504){
+                    System.out.println("Timeout exception caught, checking connection...");
+
+                    throw new ViewNotFound();
+                    //call reconnect
+                }
+            }
         }
         else {
             try{
                 view =  JenkinsConsumer.jenkinsResource.getView(viewQuery.getName());
             }
             catch (ResponseProcessingException e){
+                if (e.getResponse().getStatus() == 504){
+                    System.out.println("Timeout exception caught, checking connection...");
+                }
                 //if response status = 504, call reconnect
             throw new ViewNotFound();
             }
