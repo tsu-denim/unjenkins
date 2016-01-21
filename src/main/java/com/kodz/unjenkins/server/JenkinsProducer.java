@@ -1,7 +1,10 @@
 package com.kodz.unjenkins.server;
 
+import com.kodz.unjenkins.client.DeploymentBuddyConsumer;
 import com.kodz.unjenkins.client.JenkinsConsumer;
+import com.kodz.unjenkins.client.dto.HealthCheck;
 import com.kodz.unjenkins.client.dto.View;
+import com.kodz.unjenkins.client.helper.ConnectionHealth;
 import com.kodz.unjenkins.server.dto.BuildStatus;
 import com.kodz.unjenkins.server.dto.JobStatus;
 import com.kodz.unjenkins.server.dto.ViewQuery;
@@ -10,9 +13,12 @@ import com.kodz.unjenkins.client.dto.JobStats;
 import com.kodz.unjenkins.server.dto.Metric;
 import com.kodz.unjenkins.server.exceptions.ViewNotFound;
 
+import javax.servlet.ServletException;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,28 +131,28 @@ public class JenkinsProducer {
         if (viewQuery.isSubView() == true){
             try{
             view =  JenkinsConsumer.jenkinsResource.getSubView(viewQuery.getName(), viewQuery.getFolder());}
-            catch (ResponseProcessingException e){
-                if (e.getResponse().getStatus() == 504){
+            catch (ProcessingException e){
                     System.out.println("Timeout exception caught, checking connection...");
-
-                    throw new ViewNotFound();
-                    //call reconnect
+                    if (ConnectionHealth.getHealthCheck().getReconnecting() == false
+                            && ConnectionHealth.getHealthCheck().getConnected() ==false){
+                        DeploymentBuddyConsumer.deploymentBuddyResource.getConnectResponse();
+                    }
+                throw new ViewNotFound();
                 }
             }
-        }
         else {
             try{
                 view =  JenkinsConsumer.jenkinsResource.getView(viewQuery.getName());
             }
-            catch (ResponseProcessingException e){
-                if (e.getResponse().getStatus() == 504){
+            catch (ProcessingException e){
                     System.out.println("Timeout exception caught, checking connection...");
+                if (ConnectionHealth.getHealthCheck().getReconnecting() == false
+                        && ConnectionHealth.getHealthCheck().getConnected() ==false){
+                    DeploymentBuddyConsumer.deploymentBuddyResource.getConnectResponse();
                 }
-                //if response status = 504, call reconnect
-            throw new ViewNotFound();
+                throw new ViewNotFound();
             }
-
-        }
+            }
         return view;
     }
 

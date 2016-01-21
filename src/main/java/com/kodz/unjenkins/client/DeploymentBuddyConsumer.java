@@ -24,7 +24,7 @@ public class DeploymentBuddyConsumer {
         //restClient.register(new LoggingFilter());
 
        deploymentBuddyResource = WebResourceFactory.newResource(DeploymentBuddyResource.class,
-                restClient.target("https://localhost:8888/api"));
+                restClient.target("http://localhost:8888/api"));
 
     }
 }

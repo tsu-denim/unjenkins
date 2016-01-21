@@ -1,6 +1,8 @@
 package com.kodz.unjenkins;
 
+import com.kodz.unjenkins.client.DeploymentBuddyConsumer;
 import com.kodz.unjenkins.client.JenkinsConsumer;
+import com.kodz.unjenkins.client.helper.ConnectionHealth;
 import org.eclipse.jetty.server.Server;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -20,6 +22,8 @@ public class Main {
 
     private static void startServer(int serverPort) throws Exception {
         JenkinsConsumer.initializeClient();
+        DeploymentBuddyConsumer.initializeClient();
+        ConnectionHealth connectionHealth = new ConnectionHealth();
         Main.serverPort = serverPort;
         Main.server = configureServer();
         server.setStopTimeout(3000L);
@@ -83,6 +87,7 @@ public class Main {
                 }
             }
         }
+
         startServer(serverPort);
 
     }
