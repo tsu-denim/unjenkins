@@ -1,5 +1,6 @@
 package com.kodz.unjenkins.client;
 
+import com.kodz.unjenkins.client.helper.Configuration;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.glassfish.jersey.filter.LoggingFilter;
@@ -25,15 +26,14 @@ public class JenkinsConsumer {
 
     public static void initializeClient() throws Exception {
         //Set authentication to basic, provide Jenkins username and api token
-        restClient.register(HttpAuthenticationFeature.basic("kurt.waechter@inin.com", "55079fb68d9018d7a57d0633161a415a"));
+        restClient.register(HttpAuthenticationFeature.basic(Configuration.Setting.getJenkinsUserName(), Configuration.Setting.getJenkinsApiToken()));
         //Tell Jersey to use superior Jackson json mapping instead of default Moxy
         restClient.register(JacksonFeature.class);
         //Enable http logging to the console
         //restClient.register(new LoggingFilter());
 
         jenkinsResource = WebResourceFactory.newResource(JenkinsResource.class,
-                restClient.target("https://jenkins.inintca.com:8443"));
-
+                restClient.target("https://" + Configuration.Setting.getRemoteJenkinsHostDomain() + ":" + Configuration.Setting.getRemoteJenkinsHostPort()));
     }
 
     public static String getResourceFilePath(String relativeFilePath) {

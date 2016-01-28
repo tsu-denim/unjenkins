@@ -19,19 +19,6 @@ import javax.ws.rs.core.MediaType;
 public class Dashboard {
 
     @GET
-    @Path("/dashboard")
-    @Produces(MediaType.APPLICATION_JSON)
-    @CORS
-    public Metric getDashboard() throws Exception {
-
-        ViewQuery viewQuery = new ViewQuery("Content Management", "CM API and UI", "^((.*test)(?!.*prod)(?!.*common)(?!.*multiple)).*$");
-
-        return JenkinsProducer.getMetric(viewQuery);
-
-
-    }
-
-    @GET
     @Path("/view/{viewName}/view/{folderName}")
     @Produces(MediaType.APPLICATION_JSON)
     @CORS
@@ -40,8 +27,7 @@ public class Dashboard {
         ViewQuery viewQuery = new ViewQuery(viewName, folderName, "^((.*test)(?!.*prod)(?!.*common)(?!.*multiple)).*$");
 
         return JenkinsProducer.getMetric(viewQuery);
-
-
+        
     }
 
     @GET

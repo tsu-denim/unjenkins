@@ -12,6 +12,8 @@ import com.kodz.unjenkins.client.dto.BuildDetail;
 import com.kodz.unjenkins.client.dto.JobStats;
 import com.kodz.unjenkins.server.dto.Metric;
 import com.kodz.unjenkins.server.exceptions.ViewNotFound;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.ws.rs.ProcessingException;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
  * Created by Kurt on 11/30/15.
  */
 public class JenkinsProducer {
+    public static Logger logger = LoggerFactory.getLogger(JenkinsProducer.class);
 
     private static ArrayList<Metric> cachedMetrics = new ArrayList<Metric>();
     private static Metric currentMetric = new Metric();
@@ -49,10 +52,10 @@ public class JenkinsProducer {
 
         //View and filter combination not yet in cache, add to cache and return
         if (viewQuery.isSubView()){
-            System.out.println("Cache item not found, adding " + (viewQuery.getName() + "." + viewQuery.getFolder()) + " to cache.");
+            logger.info("Cache item not found, adding " + (viewQuery.getName() + "." + viewQuery.getFolder()) + " to cache.");
         }
         else {
-            System.out.println("Cache item not found, adding " + viewQuery.getName() + " to cache.");
+            logger.info("Cache item not found, adding " + viewQuery.getName() + " to cache.");
 
         }
         Metric metric = getNewMetric(viewQuery);
@@ -68,10 +71,10 @@ public class JenkinsProducer {
                     && (metric.getViewQuery().getRegexFilter().equals(viewQuery.getRegexFilter()))){
                if ((System.currentTimeMillis() - metric.getRefreshDate()) > timeToLive){
                    if (viewQuery.isSubView()){
-                       System.out.println(viewQuery.getName() + "." + viewQuery.getFolder() + " cache stale, reloading.");
+                       logger.info(viewQuery.getName() + "." + viewQuery.getFolder() + " cache stale, reloading.");
                    }
                    else {
-                       System.out.println(viewQuery.getName() + " cache stale, reloading.");
+                       logger.info(viewQuery.getName() + " cache stale, reloading.");
 
                    }
                    //update list, set return value
@@ -86,10 +89,10 @@ public class JenkinsProducer {
                    //do not update list and set return value to existing cached value
                    currentMetric=cachedMetrics.get(i);
                    if (viewQuery.isSubView()){
-                       System.out.println(viewQuery.getName() + "." + viewQuery.getFolder() + " dashboard found in cache within time to live.");
+                       logger.info(viewQuery.getName() + "." + viewQuery.getFolder() + " dashboard found in cache within time to live.");
                    }
                    else {
-                       System.out.println(viewQuery.getName() + " dashboard found in cache within time to live.");
+                       logger.info(viewQuery.getName() + " dashboard found in cache within time to live.");
 
                    }
                }
@@ -132,7 +135,7 @@ public class JenkinsProducer {
             try{
             view =  JenkinsConsumer.jenkinsResource.getSubView(viewQuery.getName(), viewQuery.getFolder());}
             catch (ProcessingException e){
-                    System.out.println("Timeout exception caught, checking connection...");
+                    logger.info("Exception caught, checking connection...");
                     if (ConnectionHealth.getHealthCheck().getReconnecting() == false
                             && ConnectionHealth.getHealthCheck().getConnected() ==false){
                         DeploymentBuddyConsumer.deploymentBuddyResource.getConnectResponse();
@@ -145,7 +148,7 @@ public class JenkinsProducer {
                 view =  JenkinsConsumer.jenkinsResource.getView(viewQuery.getName());
             }
             catch (ProcessingException e){
-                    System.out.println("Timeout exception caught, checking connection...");
+                    logger.info("Exception caught, checking connection...");
                 if (ConnectionHealth.getHealthCheck().getReconnecting() == false
                         && ConnectionHealth.getHealthCheck().getConnected() ==false){
                     DeploymentBuddyConsumer.deploymentBuddyResource.getConnectResponse();

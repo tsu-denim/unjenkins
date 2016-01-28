@@ -1,5 +1,6 @@
 package com.kodz.unjenkins.client;
 
+import com.kodz.unjenkins.client.helper.Configuration;
 import com.kodz.unjenkins.client.proxy.DeploymentBuddyResource;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
@@ -24,7 +25,8 @@ public class DeploymentBuddyConsumer {
         //restClient.register(new LoggingFilter());
 
        deploymentBuddyResource = WebResourceFactory.newResource(DeploymentBuddyResource.class,
-                restClient.target("http://localhost:8888/api"));
+                restClient.target("http://" + Configuration.Setting.getRemoteHostDomainForHealthCheck() + ":"
+                        + Configuration.Setting.getRemoteHostPortForHealthCheck()));
 
     }
 }

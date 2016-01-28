@@ -2,9 +2,13 @@ package com.kodz.unjenkins;
 
 import com.kodz.unjenkins.client.DeploymentBuddyConsumer;
 import com.kodz.unjenkins.client.JenkinsConsumer;
+import com.kodz.unjenkins.client.helper.Configuration;
 import com.kodz.unjenkins.client.helper.ConnectionHealth;
+import com.kodz.unjenkins.server.servlets.DebugServlet;
+import com.kodz.unjenkins.server.servlets.InfoServlet;
 import org.eclipse.jetty.server.Server;
 
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -16,7 +20,6 @@ import org.glassfish.jersey.servlet.ServletContainer;
  */
 public class Main {
 
-    private static final int DEFAULT_PORT = 8080;
     private static int serverPort;
     private static Server server ;
 
@@ -36,11 +39,20 @@ public class Main {
         resourceConfig.packages("com.kodz.unjenkins");
         resourceConfig.register(JacksonFeature.class);
         ServletContainer servletContainer = new ServletContainer(resourceConfig);
-        ServletHolder sh = new ServletHolder(servletContainer);
-        Server server = new Server(serverPort);
+        ServletHolder restServlet = new ServletHolder(servletContainer);
+        Server server = new Server();
+        ServerConnector connector = new ServerConnector(server);
+        connector.setPort(serverPort);
+        server.addConnector(connector);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+
         context.setContextPath("/");
-        context.addServlet(sh, "/*");
+
+        ServletHolder logInfoServlet = new ServletHolder("ws-logInfo", InfoServlet.class);
+        ServletHolder logDebugServlet = new ServletHolder("ws-logDebug", DebugServlet.class);
+        context.addServlet(logInfoServlet, "/log/info/*");
+        context.addServlet(logDebugServlet, "/log/debug/*");
+        context.addServlet(restServlet, "/*");
 
         server.setHandler(context);
         return server;
@@ -71,22 +83,9 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        Configuration configuration = new Configuration();
 
-        int serverPort = DEFAULT_PORT;
-
-        if (args.length > 0) {
-
-            if (args[0] == "stop") {
-                Main.stopServer();
-            } else if (args[0] != null) {
-                try {
-                    serverPort = Integer.parseInt(args[0]);
-                    System.out.println("Server port is set to " + serverPort);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        int serverPort = Configuration.Setting.getServicePort();
 
         startServer(serverPort);
 
