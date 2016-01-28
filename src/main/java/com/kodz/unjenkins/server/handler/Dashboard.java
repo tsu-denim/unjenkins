@@ -27,7 +27,7 @@ public class Dashboard {
         ViewQuery viewQuery = new ViewQuery(viewName, folderName, "^((.*test)(?!.*prod)(?!.*common)(?!.*multiple)).*$");
 
         return JenkinsProducer.getMetric(viewQuery);
-        
+
     }
 
     @GET
