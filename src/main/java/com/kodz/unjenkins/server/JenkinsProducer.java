@@ -138,7 +138,9 @@ public class JenkinsProducer {
                     logger.info("Exception caught, checking connection...");
                     if (ConnectionHealth.getHealthCheck().getReconnecting() == false
                             && ConnectionHealth.getHealthCheck().getConnected() ==false){
+                        logger.info("Calling connect endpoint on deployment buddy...");
                         DeploymentBuddyConsumer.deploymentBuddyResource.getConnectResponse();
+                        logger.info("Reconnect request sent!");
                     }
                 throw new ViewNotFound();
                 }
@@ -151,7 +153,9 @@ public class JenkinsProducer {
                     logger.info("Exception caught, checking connection...");
                 if (ConnectionHealth.getHealthCheck().getReconnecting() == false
                         && ConnectionHealth.getHealthCheck().getConnected() ==false){
+                    logger.info("Calling connect endpoint on deployment buddy...");
                     DeploymentBuddyConsumer.deploymentBuddyResource.getConnectResponse();
+                    logger.info("Reconnect request sent!");
                 }
                 throw new ViewNotFound();
             }
