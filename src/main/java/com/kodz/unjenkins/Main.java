@@ -5,6 +5,7 @@ import com.kodz.unjenkins.client.JenkinsConsumer;
 import com.kodz.unjenkins.client.helper.Configuration;
 import com.kodz.unjenkins.client.helper.ConnectionHealth;
 import com.kodz.unjenkins.server.servlets.DebugServlet;
+import com.kodz.unjenkins.server.servlets.ErrorServlet;
 import com.kodz.unjenkins.server.servlets.InfoServlet;
 import org.eclipse.jetty.server.Server;
 
@@ -50,8 +51,10 @@ public class Main {
 
         ServletHolder logInfoServlet = new ServletHolder("ws-logInfo", InfoServlet.class);
         ServletHolder logDebugServlet = new ServletHolder("ws-logDebug", DebugServlet.class);
+        ServletHolder logErrorServlet = new ServletHolder("ws-logError", ErrorServlet.class);
         context.addServlet(logInfoServlet, "/log/info/*");
         context.addServlet(logDebugServlet, "/log/debug/*");
+        context.addServlet(logErrorServlet, "/log/health/*");
         context.addServlet(restServlet, "/*");
 
         server.setHandler(context);

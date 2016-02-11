@@ -13,7 +13,9 @@ public class SocketAppender extends AppenderBase<ILoggingEvent> {
         if(event.getLevel().equals(Level.INFO)){
             InfoRoom.getInstance().writeAllMembers(event.getMessage());
         }
-        DebugRoom.getInstance().writeAllMembers(event.getMessage());
+        else if (event.getLevel().equals(Level.DEBUG)){
+            DebugRoom.getInstance().writeAllMembers(event.getMessage());
+        }
 
     }
 }

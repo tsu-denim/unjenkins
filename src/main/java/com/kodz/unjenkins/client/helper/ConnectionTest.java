@@ -3,6 +3,7 @@ package com.kodz.unjenkins.client.helper;
 import com.kodz.unjenkins.client.DeploymentBuddyConsumer;
 import com.kodz.unjenkins.client.dto.HealthCheck;
 import com.kodz.unjenkins.client.proxy.DeploymentBuddyResource;
+import com.kodz.unjenkins.logging.ErrorRoom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +22,18 @@ public class ConnectionTest extends TimerTask {
         ConnectionHealth.setHealthCheck(healthCheck);
         if (healthCheck.getConnected()){
             logger.info("Jenkins Health Check Status: Connected");
+            ErrorRoom.getInstance().writeAllMembers("jenkinsConnectionStatus: connected");
         }
         else {
-            logger.info("Jenkins Health Check Status: Disconnected");
+            if (healthCheck.getReconnecting()) {
+                logger.info("Jenkins Health Check Status: Reconnecting");
+                ErrorRoom.getInstance().writeAllMembers("jenkinsConnectionStatus: reconnected");
+            }
+            else {
+                logger.info("Jenkins Health Check Status: Disconnected");
+                ErrorRoom.getInstance().writeAllMembers("jenkinsConnectionStatus: disconnected");
+            }
+
         }
     }
 
