@@ -3,9 +3,11 @@ package com.kodz.unjenkins.server.handler;
 /**
  * Created by Kurt on 11/30/15.
  */
+import com.kodz.unjenkins.client.helper.ConnectionHealth;
 import com.kodz.unjenkins.server.JenkinsProducer;
 import com.kodz.unjenkins.server.dto.Metric;
 import com.kodz.unjenkins.server.dto.ViewQuery;
+import com.kodz.unjenkins.server.exceptions.JenkinsNotAvailable;
 import com.kodz.unjenkins.server.responseFilters.CORS;
 
 import javax.ws.rs.GET;
@@ -20,7 +22,7 @@ public class Dashboard {
 
     @GET
     @Path("/view/{viewName}/view/{folderName}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON  + "; charset=UTF-8")
     @CORS
     public Metric getSubView(@PathParam("viewName") String viewName, @PathParam("folderName") String folderName) throws Exception {
 
@@ -32,10 +34,9 @@ public class Dashboard {
 
     @GET
     @Path("/view/{viewName}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON  + "; charset=UTF-8")
     @CORS
     public Metric getView(@PathParam("viewName") String viewName) throws Exception {
-
         ViewQuery viewQuery = new ViewQuery(viewName, "^((.*test)(?!.*prod)(?!.*common)(?!.*multiple)).*$");
         return JenkinsProducer.getMetric(viewQuery);
 

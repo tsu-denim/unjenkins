@@ -11,6 +11,7 @@ import com.kodz.unjenkins.server.dto.ViewQuery;
 import com.kodz.unjenkins.client.dto.BuildDetail;
 import com.kodz.unjenkins.client.dto.JobStats;
 import com.kodz.unjenkins.server.dto.Metric;
+import com.kodz.unjenkins.server.exceptions.JenkinsNotAvailable;
 import com.kodz.unjenkins.server.exceptions.ViewNotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +38,11 @@ public class JenkinsProducer {
     private static Metric currentMetric = new Metric();
     private static long timeToLive = 10000L;
 
-    public synchronized static Metric getMetric(ViewQuery viewQuery) throws ViewNotFound {
+    public synchronized static Metric getMetric(ViewQuery viewQuery) throws ViewNotFound, JenkinsNotAvailable {
+        if (ConnectionHealth.getHealthCheck().getConnected() ==false){
+            throw new JenkinsNotAvailable();}
         int cachedCount = 0;
+
         for (Metric metric : cachedMetrics) {
             if ((metric.getViewQuery().getName().equals(viewQuery.getName()))
                     && (metric.getViewQuery().getRegexFilter().equals(viewQuery.getRegexFilter()))) {
@@ -135,13 +139,6 @@ public class JenkinsProducer {
             try{
             view =  JenkinsConsumer.jenkinsResource.getSubView(viewQuery.getName(), viewQuery.getFolder());}
             catch (ProcessingException e){
-                    logger.info("Exception caught, checking connection...");
-                    if (ConnectionHealth.getHealthCheck().getReconnecting() == false
-                            && ConnectionHealth.getHealthCheck().getConnected() ==false){
-                        logger.info("Calling connect endpoint on deployment buddy...");
-                        DeploymentBuddyConsumer.deploymentBuddyResource.getConnectResponse();
-                        logger.info("Reconnect request sent!");
-                    }
                 throw new ViewNotFound();
                 }
             }
@@ -150,13 +147,7 @@ public class JenkinsProducer {
                 view =  JenkinsConsumer.jenkinsResource.getView(viewQuery.getName());
             }
             catch (ProcessingException e){
-                    logger.info("Exception caught, checking connection...");
-                if (ConnectionHealth.getHealthCheck().getReconnecting() == false
-                        && ConnectionHealth.getHealthCheck().getConnected() ==false){
-                    logger.info("Calling connect endpoint on deployment buddy...");
-                    DeploymentBuddyConsumer.deploymentBuddyResource.getConnectResponse();
-                    logger.info("Reconnect request sent!");
-                }
+
                 throw new ViewNotFound();
             }
             }
