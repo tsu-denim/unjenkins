@@ -1,6 +1,7 @@
-package com.kodz.unjenkins.logging;
+package com.kodz.unjenkins.server.endpoints.websocket.sockets;
 
 import com.kodz.unjenkins.client.helper.Configuration;
+import com.kodz.unjenkins.server.endpoints.websocket.rooms.InfoRoom;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;

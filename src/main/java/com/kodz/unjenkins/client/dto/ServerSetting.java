@@ -6,6 +6,7 @@ package com.kodz.unjenkins.client.dto;
 public class ServerSetting {
     private int servicePort;
     private int heartbeatInterval;
+    private int daemonInterval;
     private String remoteJenkinsHostDomain;
     private String remoteJenkinsHostPort;
     private String remoteHostDomainForHealthCheck;
@@ -14,6 +15,14 @@ public class ServerSetting {
     private String sslKeyPassword;
     private String jenkinsUserName;
     private String jenkinsApiToken;
+
+    public int getDaemonInterval() {
+        return daemonInterval;
+    }
+
+    public void setDaemonInterval(int daemonInterval) {
+        this.daemonInterval = daemonInterval;
+    }
 
     public int getServicePort() {
         return servicePort;

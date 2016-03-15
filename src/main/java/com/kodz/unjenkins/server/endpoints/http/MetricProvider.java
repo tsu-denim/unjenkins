@@ -1,8 +1,6 @@
-package com.kodz.unjenkins.server;
+package com.kodz.unjenkins.server.endpoints.http;
 
-import com.kodz.unjenkins.client.DeploymentBuddyConsumer;
 import com.kodz.unjenkins.client.JenkinsConsumer;
-import com.kodz.unjenkins.client.dto.HealthCheck;
 import com.kodz.unjenkins.client.dto.View;
 import com.kodz.unjenkins.client.helper.ConnectionHealth;
 import com.kodz.unjenkins.server.dto.BuildStatus;
@@ -16,12 +14,8 @@ import com.kodz.unjenkins.server.exceptions.ViewNotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
 import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.ResponseProcessingException;
-import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,8 +25,8 @@ import java.util.stream.Collectors;
 /**
  * Created by Kurt on 11/30/15.
  */
-public class JenkinsProducer {
-    public static Logger logger = LoggerFactory.getLogger(JenkinsProducer.class);
+public class MetricProvider {
+    public static Logger logger = LoggerFactory.getLogger(MetricProvider.class);
 
     private static ArrayList<Metric> cachedMetrics = new ArrayList<Metric>();
     private static Metric currentMetric = new Metric();

@@ -1,6 +1,6 @@
-package com.kodz.unjenkins.server.servlets;
+package com.kodz.unjenkins.server.endpoints.websocket.servlets;
 
-import com.kodz.unjenkins.logging.DebugSocket;
+import com.kodz.unjenkins.server.endpoints.websocket.sockets.DebugSocket;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 

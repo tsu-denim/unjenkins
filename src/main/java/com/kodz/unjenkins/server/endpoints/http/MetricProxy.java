@@ -1,13 +1,10 @@
-package com.kodz.unjenkins.server.handler;
+package com.kodz.unjenkins.server.endpoints.http;
 
 /**
  * Created by Kurt on 11/30/15.
  */
-import com.kodz.unjenkins.client.helper.ConnectionHealth;
-import com.kodz.unjenkins.server.JenkinsProducer;
 import com.kodz.unjenkins.server.dto.Metric;
 import com.kodz.unjenkins.server.dto.ViewQuery;
-import com.kodz.unjenkins.server.exceptions.JenkinsNotAvailable;
 import com.kodz.unjenkins.server.responseFilters.CORS;
 
 import javax.ws.rs.GET;
@@ -18,7 +15,7 @@ import javax.ws.rs.core.MediaType;
 
 @Path("api")
 @CORS
-public class Dashboard {
+public class MetricProxy {
 
     @GET
     @Path("/view/{viewName}/view/{folderName}")
@@ -28,7 +25,7 @@ public class Dashboard {
 
         ViewQuery viewQuery = new ViewQuery(viewName, folderName, "^((.*test)(?!.*prod)(?!.*common)(?!.*multiple)).*$");
 
-        return JenkinsProducer.getMetric(viewQuery);
+        return MetricProvider.getMetric(viewQuery);
 
     }
 
@@ -38,7 +35,7 @@ public class Dashboard {
     @CORS
     public Metric getView(@PathParam("viewName") String viewName) throws Exception {
         ViewQuery viewQuery = new ViewQuery(viewName, "^((.*test)(?!.*prod)(?!.*common)(?!.*multiple)).*$");
-        return JenkinsProducer.getMetric(viewQuery);
+        return MetricProvider.getMetric(viewQuery);
 
     }
 }

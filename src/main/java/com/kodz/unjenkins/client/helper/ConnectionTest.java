@@ -2,14 +2,10 @@ package com.kodz.unjenkins.client.helper;
 
 import com.kodz.unjenkins.client.DeploymentBuddyConsumer;
 import com.kodz.unjenkins.client.dto.HealthCheck;
-import com.kodz.unjenkins.client.proxy.DeploymentBuddyResource;
-import com.kodz.unjenkins.logging.ErrorRoom;
+import com.kodz.unjenkins.server.endpoints.websocket.rooms.ErrorRoom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.Socket;
 import java.util.TimerTask;
 
 /**

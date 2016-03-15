@@ -1,4 +1,6 @@
-package com.kodz.unjenkins.logging;
+package com.kodz.unjenkins.server.endpoints.websocket.rooms;
+
+import com.kodz.unjenkins.server.endpoints.websocket.sockets.ErrorSocket;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,16 +9,16 @@ import java.util.List;
 /**
  * Created by Kurt on 1/26/16.
  */
-public class InfoRoom {
-    private static final InfoRoom INSTANCE = new InfoRoom();
+public class ErrorRoom {
+    private static final ErrorRoom INSTANCE = new ErrorRoom();
 
-    public static InfoRoom getInstance() {
+    public static ErrorRoom getInstance() {
         return INSTANCE;
     }
 
-    private List<InfoSocket> members = new ArrayList<>();
+    private List<ErrorSocket> members = new ArrayList<>();
 
-    public void join(InfoSocket socket) {
+    public void join(ErrorSocket socket) {
         members.add(socket);
     }
 
@@ -30,7 +32,7 @@ public class InfoRoom {
         });
     }
 
-    public void removeMember(InfoSocket infoSocket){
-        this.members.remove(infoSocket);
+    public void removeMember(ErrorSocket errorSocket){
+        this.members.remove(errorSocket);
     }
 }

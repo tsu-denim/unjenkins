@@ -4,9 +4,13 @@ import com.kodz.unjenkins.client.DeploymentBuddyConsumer;
 import com.kodz.unjenkins.client.JenkinsConsumer;
 import com.kodz.unjenkins.client.helper.Configuration;
 import com.kodz.unjenkins.client.helper.ConnectionHealth;
-import com.kodz.unjenkins.server.servlets.DebugServlet;
-import com.kodz.unjenkins.server.servlets.ErrorServlet;
-import com.kodz.unjenkins.server.servlets.InfoServlet;
+import com.kodz.unjenkins.server.dto.UserEvent;
+import com.kodz.unjenkins.server.dto.UserEventType;
+import com.kodz.unjenkins.server.endpoints.websocket.rooms.SubscriptionRoom;
+import com.kodz.unjenkins.server.endpoints.websocket.servlets.DebugServlet;
+import com.kodz.unjenkins.server.endpoints.websocket.servlets.ErrorServlet;
+import com.kodz.unjenkins.server.endpoints.websocket.servlets.InfoServlet;
+import com.kodz.unjenkins.server.endpoints.websocket.servlets.SubscriptionServlet;
 import org.eclipse.jetty.server.Server;
 
 import org.eclipse.jetty.server.ServerConnector;
@@ -52,9 +56,11 @@ public class Main {
         ServletHolder logInfoServlet = new ServletHolder("ws-logInfo", InfoServlet.class);
         ServletHolder logDebugServlet = new ServletHolder("ws-logDebug", DebugServlet.class);
         ServletHolder logErrorServlet = new ServletHolder("ws-logError", ErrorServlet.class);
+        ServletHolder subscriptionServlet = new ServletHolder("ws-subscribe", SubscriptionServlet.class);
         context.addServlet(logInfoServlet, "/log/info/*");
         context.addServlet(logDebugServlet, "/log/debug/*");
         context.addServlet(logErrorServlet, "/log/health/*");
+        context.addServlet(subscriptionServlet, "/subscribe/job/*");
         context.addServlet(restServlet, "/*");
 
         server.setHandler(context);

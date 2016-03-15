@@ -1,6 +1,7 @@
 serverSettings:
   servicePort : 8080
   heartbeatInterval : 10000
+  daemonInterval : 30000
   remoteHostDomainForHealthCheck : localhost
   remoteHostPortForHealthCheck : 8888
   sslKeyRepositoryPath : thePath

@@ -1,4 +1,6 @@
-package com.kodz.unjenkins.logging;
+package com.kodz.unjenkins.server.endpoints.websocket.rooms;
+
+import com.kodz.unjenkins.server.endpoints.websocket.sockets.DebugSocket;
 
 import java.io.IOException;
 import java.util.ArrayList;
