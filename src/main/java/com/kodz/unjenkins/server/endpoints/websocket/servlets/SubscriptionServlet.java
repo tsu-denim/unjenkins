@@ -13,6 +13,7 @@ public class SubscriptionServlet extends WebSocketServlet
     @Override
     public void configure(WebSocketServletFactory factory)
     {
+        factory.getPolicy().setIdleTimeout(5184000000L);
         factory.register(SubscriptionSocket.class);
     }
 }

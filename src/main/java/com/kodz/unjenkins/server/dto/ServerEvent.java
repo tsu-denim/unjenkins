@@ -1,5 +1,7 @@
 package com.kodz.unjenkins.server.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 
 /**
@@ -7,16 +9,17 @@ import java.util.ArrayList;
  */
 public class ServerEvent {
     ServerEventType serverEventType = null;
-    JobStatus jobStatus = null;
-
-    public JobStatus getJobStatus() {
+    ArrayList<JobStatus> jobStatus = new ArrayList<>();
+    @JsonProperty("jobs")
+    public ArrayList<JobStatus> getJobStatus() {
         return jobStatus;
     }
 
-    public void setJobStatus(JobStatus jobStatus) {
+    public void setJobStatus(ArrayList<JobStatus> jobStatus) {
         this.jobStatus = jobStatus;
     }
 
+    @JsonProperty("serverEvent")
     public ServerEventType getServerEventType() {
         return serverEventType;
     }

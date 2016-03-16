@@ -19,9 +19,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -30,19 +29,15 @@ import java.util.stream.Collectors;
 public class SubscriptionProvider {
     public static Logger logger = LoggerFactory.getLogger(SubscriptionProvider.class);
 
-    static ArrayList<JobStatus> jobPool = new ArrayList<>();
-    static ArrayList<Subscription> subscriptions = new ArrayList<>();
-    static ArrayList<UpdateNotification> notifyQueue = new ArrayList<>();
 
-    public synchronized static ArrayList<JobStatus> getJobs() {
+    public synchronized static CopyOnWriteArrayList<JobStatus> getJobs() {
 
-        return jobPool;
+        return SubscriptionPools.safeJobPool;
     }
 
     public synchronized static ArrayList<JobStatus> getJobsFromPool(ArrayList<String> jobNames) {
-
-        addJobsToPool(jobNames);
         ArrayList<JobStatus> returnFromPool = new ArrayList<>();
+        addJobsToPool(jobNames);
 
         for (String name : jobNames) {
             for (JobStatus job : getJobs()) {
@@ -56,12 +51,11 @@ public class SubscriptionProvider {
     }
 
     public synchronized static void addSubscription(Subscription subscription) {
-        logger.info("Adding subscription for the following jobs to the pool: {} ", subscription.getJobs());
-        getSubscriptions().add(subscription);
+        SubscriptionPools.safeSubscriptions.add(subscription);
     }
 
-    public synchronized static ArrayList<Subscription> getSubscriptions() {
-        return subscriptions;
+    public synchronized static CopyOnWriteArrayList<Subscription> getSubscriptions() {
+        return SubscriptionPools.safeSubscriptions;
     }
 
     public synchronized static void removeSubscription(SubscriptionSocket subscription) {
@@ -72,150 +66,178 @@ public class SubscriptionProvider {
                 subsToRemove.add(sub);
             }
         });
-        subsToRemove.forEach(sub -> {
-            getSubscriptions().remove(sub);
-        });
+        getSubscriptions().removeAll(subsToRemove);
     }
 
     public synchronized static void notifySubscribers() {
-        logger.info("Sending the following number of notifications {}", getNotifyQueue().size());
-
-        for (int i = 0; i < getNotifyQueue().size(); i++) {
-            UpdateNotification updateNotification = getNotifyQueue().get(i);
-                SubscriptionRoom.sendMessage(updateNotification);
-                getNotifyQueue().remove(i);
+        for (UpdateNotification updateNotification; (updateNotification = SubscriptionPools.messageQueue.poll()) != null; ) {
+            logger.info("Sending update to client for job {}", updateNotification.getJobStatus().getName());
+            SubscriptionRoom.sendMessage(updateNotification);
         }
     }
 
     public synchronized static void addNotification(UpdateNotification updateNotification) {
         logger.info("Adding notification to queue for job {}", updateNotification.getJobStatus().getName());
-        getNotifyQueue().add(updateNotification);
-    }
-
-    public synchronized static ArrayList<UpdateNotification> getNotifyQueue() {
-        return notifyQueue;
+        SubscriptionPools.messageQueue.offer(updateNotification);
     }
 
     public synchronized static void updateJobs() {
-        logger.info("Updating job pool...");
-        ArrayList<JobStatus> jobStatuses = new ArrayList<>();
-        boolean isUpdateFound = false;
-        for (int i = 0; i < getJobs().size(); i++) {
-            String jobName = getJobs().get(i).getName();
-            try {
-                JobStats jobStats = JenkinsConsumer.jenkinsResource.getJob(jobName,
-                        URLEncoder.encode("displayName[displayName],builds[number,url]{0,5}", "UTF-8"));
-                JobStatus status = new JobStatus();
-                status.setName(jobStats.getDisplayName());
-                List<BuildStatus> buildStatusList = jobStats.getBuilds().stream().parallel().map(t -> {
-                    try {
-                        BuildDetail buildDetail = JenkinsConsumer.jenkinsResource.getBuildDetail(jobStats.getDisplayName(),
-                                t.getNumber(), URLEncoder.encode("actions[failCount,skipCount,totalCount],result[result],number[number],building[building],url[url]", "UTF-8"));
-                        return new BuildStatus(buildDetail);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                        throw new RuntimeException();
-                    }
-                }).collect(Collectors.toList());
-                status.setBuildStatusList(buildStatusList);
-                Collections.sort(status.getBuildStatusList());
-                if (updateable(getJobs().get(i), status)) {
-                    logger.info("Jobs do not match, updating...");
-                    getJobs().set(i, status);
-                    jobStatuses.add(status);
-                    isUpdateFound = true;
-                }
+        if (SubscriptionPools.safeJobPool.size() > 0) {
 
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+            logger.info("Updating job pool...");
+            for (int i = 0; i < getJobs().size(); i++) {
+                String jobName = getJobs().get(i).getName();
+                try {
+                    JobStatus status = getJobStatus(jobName);
+
+                    if (updateable(getJobs().get(i), status)) {
+                        logger.info("Jobs do not match, updating...");
+                        getJobs().set(i, status);
+                        SubscriptionPools.jobUpdateQueue.offer(status);
+                    }
+
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
 
-            if (isUpdateFound) {
-                for (Subscription subscription : getSubscriptions()) {
-                    for (JobStatus jobStatus : subscription.getJobs()) {
-                        for (JobStatus jobStatus1 : jobStatuses) {
-                            if (jobStatus.getName().equals(jobStatus1.getName())) {
-                                logger.info("Subscriber found, adding notification for {}", jobStatus.getName());
-                                UpdateNotification updateNotification = new UpdateNotification();
-                                updateNotification.setJobStatus(jobStatus1);
-                                updateNotification.setSubscriptionSocket(subscription.getSubscriptionSocket());
-                                addNotification(updateNotification);
-                            }
+            for (JobStatus jobStatus; (jobStatus = SubscriptionPools.jobUpdateQueue.poll()) != null; ) {
+                for (Subscription subscription : SubscriptionPools.safeSubscriptions) {
+                    for (JobStatus job : subscription.getJobs()) {
+                        if (job.getName().equals(jobStatus.getName())) {
+                            UpdateNotification updateNotification = new UpdateNotification();
+                            updateNotification.setSubscriptionSocket(subscription.getSubscriptionSocket());
+                            updateNotification.setJobStatus(jobStatus);
+                            addNotification(updateNotification);
                         }
                     }
-
                 }
             }
-
-
         }
+        else {
+            logger.info("No subscribers connected, nothing to update.");
+        }
+
+
     }
 
     public synchronized static void cleanUpJobs() {
+        ArrayList<JobStatus> allJobNames = new ArrayList<>();
+        for (Subscription subscription : SubscriptionPools.safeSubscriptions) {
+            allJobNames.addAll(subscription.getJobs());
+        }
+
+        List<String> activeNames = allJobNames.stream().map(t -> t.getName()).collect(Collectors.toList());
+        Set<String> uniqueActive = new HashSet<String>(activeNames);
+
+        List<String> allPoolNames = getJobs().stream().map(t -> t.getName()).collect(Collectors.toList());
+        Set<String> uniquePool = new HashSet<String>(allPoolNames);
+
+        uniquePool.removeAll(uniqueActive);
+
+        if (uniquePool.size() > 0) {
+            logger.info("Cleanup: Jobs Pool contains {} orhpaned jobs. Removing...", uniquePool.size());
+            ArrayList<JobStatus> jobsToDelete = new ArrayList<>();
+            for (JobStatus jobStatus : getJobs()) {
+                for (String jobToDelete : uniquePool) {
+                    if (jobStatus.getName().equals(jobToDelete)) {
+                        jobsToDelete.add(jobStatus);
+                    }
+
+                }
+            }
+
+            getJobs().removeAll(jobsToDelete);
+
+            List<String> allUpdatedPoolNames = getJobs().stream().map(t -> t.getName()).collect(Collectors.toList());
+            Set<String> uniqueUpdatedPool = new HashSet<String>(allUpdatedPoolNames);
+
+            uniqueUpdatedPool.removeAll(uniqueActive);
+            logger.info("Cleanup complete. {} orphaned entries remain.", uniqueUpdatedPool.size());
+        }
+        else {
+            logger.info("Nothing to cleanup.");
+        }
+
     }
 
     public synchronized static void addJobsToPool(ArrayList<String> jobsToAdd) {
-        ArrayList<String> jobsNotFound = new ArrayList<>();
 
         if (getJobs().size() > 0) {
             for (String name : jobsToAdd) {
                 for (JobStatus jobStatus : getJobs()) {
                     if (!(jobStatus.getName().equals(name))) {
-                        jobsNotFound.add(name);
-                        logger.info("Job {} not found in pool, adding to queue.", name);
+                        try {
+                            JobStatus status = getJobStatus(name);
+                            SubscriptionPools.safeJobPool.add(status);
+
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-                ;
             }
-            ;
+
         } else {
-            jobsNotFound = jobsToAdd;
-            logger.info("Job pool empty, queueing all requested jobs: {}", jobsNotFound);
-        }
 
-        ArrayList<JobStats> jobStats = new ArrayList<>();
-
-        jobsNotFound.forEach(job -> {
-            try {
-                jobStats.add(JenkinsConsumer.jenkinsResource.getJob(job,
-                        URLEncoder.encode("displayName[displayName],builds[number,url]{0,5}", "UTF-8")));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        });
-
-        for (JobStats jobStats1 : jobStats) {
-            JobStatus status = new JobStatus();
-            status.setName(jobStats1.getDisplayName());
-            List<BuildStatus> buildStatusList = jobStats1.getBuilds().stream().parallel().map(t -> {
+            jobsToAdd.forEach(name -> {
                 try {
-                    BuildDetail buildDetail = JenkinsConsumer.jenkinsResource.getBuildDetail(jobStats1.getDisplayName(),
-                            t.getNumber(), URLEncoder.encode("actions[failCount,skipCount,totalCount],result[result],number[number],building[building],url[url]", "UTF-8"));
-                    return new BuildStatus(buildDetail);
+                    JobStatus status = getJobStatus(name);
+                    SubscriptionPools.safeJobPool.add(status);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
-                    throw new RuntimeException();
                 }
-            }).collect(Collectors.toList());
-            status.setBuildStatusList(buildStatusList);
-            Collections.sort(status.getBuildStatusList());
-            getJobs().add(status);
-
+            });
         }
+
+
     }
 
     public static boolean updateable(JobStatus old, JobStatus fresh) {
-        if (old.getBuildStatusList().get(0).getBuildNumber() != fresh.getBuildStatusList().get(0).getBuildNumber()) {
-            logger.info("Build numbers do not match, build is updateable.");
+        BuildStatus oldBuild = old.getBuildStatusList().stream().min(BuildStatus::compareTo).get();
+        BuildStatus newBuild = fresh.getBuildStatusList().stream().min(BuildStatus::compareTo).get();
+        boolean isBuildFresh = newBuild.getBuildNumber() > oldBuild.getBuildNumber();
+        boolean isBuildSame = newBuild.getBuildNumber() == oldBuild.getBuildNumber();
+
+
+        if (isBuildFresh) {
+            logger.info("new build found: {} is newer than {}", newBuild.getBuildNumber(), oldBuild.getBuildNumber());
             return true;
-        } else if (old.getBuildStatusList().get(0).getBuildNumber() == fresh.getBuildStatusList().get(0).getBuildNumber()) {
-            if (old.getBuildStatusList().get(0).isBuilding() != fresh.getBuildStatusList().get(0).isBuilding()) {
-                logger.info("Build numbers match, but isBuilding flags are different, build is updateable.");
-                return true;
+        } else if (isBuildSame) {
+            if (oldBuild.isBuilding()) {
+                if (!newBuild.isBuilding()) {
+                    logger.info("build just finished: {} building status went from {} to {}",
+                            oldBuild.getBuildNumber(), oldBuild.isBuilding(), newBuild.isBuilding());
+                    return true;
+                }
             }
         }
-        logger.info("Build numbers match and build is finished building. Build is not updateable.");
+        logger.info("job still fresh: old {}, new {}, isBuildingOld {}, isBuildingNew {}",
+                oldBuild.getBuildNumber(), newBuild.getBuildNumber(), oldBuild.isBuilding(), newBuild.isBuilding());
         return false;
+    }
+
+    public static JobStatus getJobStatus(String jobName) throws UnsupportedEncodingException {
+
+        JobStats jobStats = JenkinsConsumer.jenkinsResource.getJob(jobName,
+                URLEncoder.encode("displayName[displayName],builds[number,url]{0,5}", "UTF-8"));
+        JobStatus status = new JobStatus();
+        status.setName(jobStats.getDisplayName());
+        List<BuildStatus> buildStatusList = jobStats.getBuilds().stream().parallel().map(t -> {
+            try {
+                BuildDetail buildDetail = JenkinsConsumer.jenkinsResource.getBuildDetail(jobStats.getDisplayName(),
+                        t.getNumber(), URLEncoder.encode("actions[failCount,skipCount,totalCount],result[result],number[number],building[building],url[url]", "UTF-8"));
+                return new BuildStatus(buildDetail);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                throw new RuntimeException();
+            }
+        }).collect(Collectors.toList());
+        status.setBuildStatusList(buildStatusList);
+        Collections.sort(status.getBuildStatusList());
+
+        return status;
+
     }
 
 }

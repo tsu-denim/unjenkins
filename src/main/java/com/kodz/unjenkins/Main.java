@@ -6,6 +6,7 @@ import com.kodz.unjenkins.client.helper.Configuration;
 import com.kodz.unjenkins.client.helper.ConnectionHealth;
 import com.kodz.unjenkins.server.dto.UserEvent;
 import com.kodz.unjenkins.server.dto.UserEventType;
+import com.kodz.unjenkins.server.endpoints.websocket.providers.JobSearch;
 import com.kodz.unjenkins.server.endpoints.websocket.rooms.SubscriptionRoom;
 import com.kodz.unjenkins.server.endpoints.websocket.servlets.DebugServlet;
 import com.kodz.unjenkins.server.endpoints.websocket.servlets.ErrorServlet;

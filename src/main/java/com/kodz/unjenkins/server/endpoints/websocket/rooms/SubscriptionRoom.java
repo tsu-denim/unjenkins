@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kodz.unjenkins.client.helper.ConnectionHealth;
 import com.kodz.unjenkins.server.dto.*;
+import com.kodz.unjenkins.server.endpoints.websocket.providers.JobSearch;
 import com.kodz.unjenkins.server.endpoints.websocket.providers.SubscriptionProvider;
 import com.kodz.unjenkins.server.endpoints.websocket.sockets.SubscriptionSocket;
 
@@ -56,7 +57,10 @@ public class SubscriptionRoom {
                         subscription.setSubscriptionSocket(subscriptionSocket);
                         subscription.setJobs(SubscriptionProvider.getJobsFromPool(userEvent.getValues()));
                         SubscriptionProvider.addSubscription(subscription);
-                        sendMessage(toJson(subscription.getJobs()), subscriptionSocket);
+                        sendMessage(subscription);
+                        break;
+                    case query:
+                        sendMessage(toJson(JobSearch.query(userEvent.getValues().get(0))), subscriptionSocket);
                         break;
                     default:
                         JsonError jsonError = new JsonError();
@@ -86,9 +90,21 @@ public class SubscriptionRoom {
         try {
             ServerEvent serverEvent = new ServerEvent();
             serverEvent.setServerEventType(ServerEventType.jobUpdate);
-            serverEvent.setJobStatus(updateNotification.getJobStatus());
+            serverEvent.getJobStatus().add(updateNotification.getJobStatus());
             String message = toJson(serverEvent);
             updateNotification.getSubscriptionSocket().session.getRemote().sendString(message);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    public static void sendMessage(Subscription subscription) {
+        try {
+            ServerEvent serverEvent = new ServerEvent();
+            serverEvent.setServerEventType(ServerEventType.subscriptionData);
+            serverEvent.setJobStatus(subscription.getJobs());
+            String message = toJson(serverEvent);
+            subscription.getSubscriptionSocket().session.getRemote().sendString(message);
         } catch (IOException e1) {
             e1.printStackTrace();
         }

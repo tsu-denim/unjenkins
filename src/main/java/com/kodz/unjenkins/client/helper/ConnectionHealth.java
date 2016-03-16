@@ -3,6 +3,7 @@ package com.kodz.unjenkins.client.helper;
 import com.kodz.unjenkins.client.dto.HealthCheck;
 import com.kodz.unjenkins.server.endpoints.websocket.daemons.FetchDaemon;
 import com.kodz.unjenkins.server.endpoints.websocket.daemons.NotifyDaemon;
+import com.kodz.unjenkins.server.endpoints.websocket.daemons.SearchDaemon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,15 @@ public class ConnectionHealth {
     private static Boolean isHealthCheckRunning = false;
     private static Boolean isFetchDaemonRunning = false;
     private static Boolean isNotifyDaemonRunning = false;
+    private static Boolean isSearchDaemonRunning = false;
+
+    public static Boolean isSearchDaemonRunning() {
+        return isSearchDaemonRunning;
+    }
+
+    public static void setIsSearchDaemonRunning(Boolean isSearchDaemonRunning) {
+        ConnectionHealth.isSearchDaemonRunning = isSearchDaemonRunning;
+    }
 
     static {initializeConnectionHealth();}
 
@@ -76,6 +86,12 @@ public class ConnectionHealth {
             timer.scheduleAtFixedRate(new FetchDaemon(), 5000, Configuration.Setting.getDaemonInterval());
             setIsFetchDaemonRunning(true);
         };
+
+        if (!isSearchDaemonRunning){
+            Timer timer = new Timer();
+            timer.scheduleAtFixedRate(new SearchDaemon(), 5000, 300000);
+            setIsFetchDaemonRunning(true);
+        };
         printStatus();
     }
 
@@ -83,6 +99,7 @@ public class ConnectionHealth {
         logger.debug("HealthCheck is running: " + getIsHealthCheckRunning());
         logger.debug("Fetch Daemon is running: " + isFetchDaemonRunning());
         logger.debug("Notify Daemon is running: " + isNotifyDaemonRunning());
+        logger.debug("Search Daemon is running: " + isSearchDaemonRunning());
     }
 
 }
