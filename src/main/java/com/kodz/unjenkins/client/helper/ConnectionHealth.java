@@ -90,7 +90,7 @@ public class ConnectionHealth {
         if (!isSearchDaemonRunning){
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new SearchDaemon(), 5000, 300000);
-            setIsFetchDaemonRunning(true);
+            setIsSearchDaemonRunning(true);
         };
         printStatus();
     }
