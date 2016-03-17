@@ -67,8 +67,12 @@ public class JobSearch {
     }
 
     public static ArrayList<String> query(String query){
+        if (query.isEmpty()){
+            return new ArrayList<String>();
+        }
+
         try {
-            Query q = new QueryParser("jobName", analyzer).parse(query);
+            Query q = new QueryParser("jobName", analyzer).parse(QueryParser.escape(query));
             int hitsPerPage = 25;
             IndexReader reader = DirectoryReader.open(index);
             IndexSearcher searcher = new IndexSearcher(reader);

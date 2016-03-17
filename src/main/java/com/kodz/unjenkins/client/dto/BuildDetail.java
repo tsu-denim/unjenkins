@@ -111,14 +111,17 @@ public class BuildDetail {
         actionList = actions.stream().filter(t -> (t.getFailCount() != null && t.getSkipCount() != null && t.getTotalCount() != null))
                 .limit(1L)
                 .collect(Collectors.toCollection(ArrayList::new));
+
         if (actionList.size()==1){
             action = actionList.get(0);
             action.setPassedCount(action.getTotalCount() - (action.getFailCount() + action.getSkipCount()));
         }
+
         else {
-            if (this.getResult() != "ABORTED"){
-                this.setResult("CORRUPT");
+            if ((this.getResult() == null)){
+                    this.setResult("CORRUPT");
             }
+
             action.setPassedCount(0);
             action.setFailCount(0);
             action.setSkipCount(0);

@@ -240,4 +240,8 @@ public class SubscriptionProvider {
 
     }
 
+    public static void sendPings(){
+        SubscriptionPools.safeSubscriptions.forEach(t -> t.getSubscriptionSocket().sendPing());
+        }
+
 }

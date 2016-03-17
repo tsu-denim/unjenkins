@@ -10,6 +10,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * Created by Kurt on 3/11/16.
@@ -29,6 +30,16 @@ public class SubscriptionSocket {
             }
 
         }
+
+       public void sendPing(){
+           String data = "heartbeat";
+           ByteBuffer payload = ByteBuffer.wrap(data.getBytes());
+           try {
+               this.session.getRemote().sendPing(payload);
+           } catch (IOException e) {
+               e.printStackTrace();
+           }
+       }
 
         @OnWebSocketMessage
         public void onText(String message) {
