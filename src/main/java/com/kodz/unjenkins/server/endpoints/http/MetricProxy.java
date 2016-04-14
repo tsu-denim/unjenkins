@@ -5,13 +5,16 @@ package com.kodz.unjenkins.server.endpoints.http;
  */
 import com.kodz.unjenkins.server.dto.Metric;
 import com.kodz.unjenkins.server.dto.ViewQuery;
+import com.kodz.unjenkins.server.dto.gimpy.GimpyQuery;
+import com.kodz.unjenkins.server.dto.gimpy.GimpyQueryResponse;
+import com.kodz.unjenkins.server.dto.gimpy.Report;
 import com.kodz.unjenkins.server.responseFilters.CORS;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("api")
 @CORS
@@ -38,4 +41,28 @@ public class MetricProxy {
         return MetricProvider.getMetric(viewQuery);
 
     }
+
+
+    @POST
+    @Path("/tcdb")
+    @Produces(MediaType.APPLICATION_JSON  + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON  + "; charset=UTF-8")
+    @CORS
+    public Response postQuery(GimpyQuery gimpyQuery) throws Exception {
+        GimpyQueryResponse gimpyQueryResponse = GimpyProvider.postQuery(gimpyQuery);
+        return Response.accepted(gimpyQueryResponse).build();
+
+    }
+
+    @GET
+    @Path("/tcdb/{reportId}")
+    @Produces(MediaType.APPLICATION_JSON  + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON  + "; charset=UTF-8")
+    @CORS
+    public Report getReport(@PathParam("reportId") String reportId) throws Exception {
+
+        Report report = GimpyProvider.getReport(reportId);
+        return report;
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.kodz.unjenkins.client.helper;
 
 import com.kodz.unjenkins.client.dto.HealthCheck;
+import com.kodz.unjenkins.server.endpoints.http.daemons.QueryDaemon;
 import com.kodz.unjenkins.server.endpoints.websocket.daemons.FetchDaemon;
 import com.kodz.unjenkins.server.endpoints.websocket.daemons.NotifyDaemon;
 import com.kodz.unjenkins.server.endpoints.websocket.daemons.PingDaemon;
@@ -21,6 +22,7 @@ public class ConnectionHealth {
     private static Boolean isNotifyDaemonRunning = false;
     private static Boolean isSearchDaemonRunning = false;
     private static Boolean isPingDaemonRunning = false;
+    private static Boolean isQueryDaemonRunning = false;
 
     public static Boolean isPingDaemonRunning() {
         return isPingDaemonRunning;
@@ -76,6 +78,14 @@ public class ConnectionHealth {
         ConnectionHealth.isNotifyDaemonRunning = isNotifyDaemonRunning;
     }
 
+    public static Boolean isQueryDaemonRunning() {
+        return isQueryDaemonRunning;
+    }
+
+    public static void setIsQueryDaemonRunning(Boolean isQueryDaemonRunning) {
+        ConnectionHealth.isQueryDaemonRunning = isQueryDaemonRunning;
+    }
+
     private synchronized static void initializeConnectionHealth(){
         printStatus();
         logger.debug("HealthCheck initializing...");
@@ -91,21 +101,26 @@ public class ConnectionHealth {
             setIsNotifyDaemonRunning(true);
         };
 
-        if (!isFetchDaemonRunning){
+        if (!isFetchDaemonRunning()){
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new FetchDaemon(), 5000, Configuration.Setting.getDaemonInterval());
             setIsFetchDaemonRunning(true);
         };
 
-        if (!isSearchDaemonRunning){
+        if (!isSearchDaemonRunning()){
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new SearchDaemon(), 5000, 300000);
             setIsSearchDaemonRunning(true);
         };
-        if (!isPingDaemonRunning){
+        if (!isPingDaemonRunning()){
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new PingDaemon(), 5000, 5000);
             setIsPingDaemonRunning(true);
+        };
+        if (!isQueryDaemonRunning()){
+            Timer timer = new Timer();
+            timer.scheduleAtFixedRate(new QueryDaemon(), 5000, 5000);
+            setIsQueryDaemonRunning(true);
         };
         printStatus();
     }
@@ -116,6 +131,7 @@ public class ConnectionHealth {
         logger.debug("Notify Daemon is running: " + isNotifyDaemonRunning());
         logger.debug("Search Daemon is running: " + isSearchDaemonRunning());
         logger.debug("Ping Daemon is running: " + isSearchDaemonRunning());
+        logger.debug("Query Daemon is running: " + isQueryDaemonRunning());
     }
 
 }

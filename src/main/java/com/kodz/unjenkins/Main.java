@@ -4,6 +4,7 @@ import com.kodz.unjenkins.client.DeploymentBuddyConsumer;
 import com.kodz.unjenkins.client.JenkinsConsumer;
 import com.kodz.unjenkins.client.helper.Configuration;
 import com.kodz.unjenkins.client.helper.ConnectionHealth;
+import com.kodz.unjenkins.server.database.QueryHelper;
 import com.kodz.unjenkins.server.dto.UserEvent;
 import com.kodz.unjenkins.server.dto.UserEventType;
 import com.kodz.unjenkins.server.endpoints.websocket.providers.JobSearch;
@@ -96,7 +97,7 @@ public class Main {
         Configuration configuration = new Configuration();
 
         int serverPort = Configuration.Setting.getServicePort();
-
+        QueryHelper.init();
         startServer(serverPort);
 
     }
