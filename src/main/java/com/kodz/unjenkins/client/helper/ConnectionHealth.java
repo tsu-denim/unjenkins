@@ -9,6 +9,7 @@ import com.kodz.unjenkins.server.endpoints.websocket.daemons.SearchDaemon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Timer;
 
 /**
@@ -23,6 +24,7 @@ public class ConnectionHealth {
     private static Boolean isSearchDaemonRunning = false;
     private static Boolean isPingDaemonRunning = false;
     private static Boolean isQueryDaemonRunning = false;
+    private static ArrayList<Timer> timers = new ArrayList<>();
 
     public static Boolean isPingDaemonRunning() {
         return isPingDaemonRunning;
@@ -93,29 +95,34 @@ public class ConnectionHealth {
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new ConnectionTest(), 5000, Configuration.Setting.getHeartbeatInterval());
             setIsHealthCheckRunning(true);
+            timers.add(timer);
         };
 
         if (!isNotifyDaemonRunning()){
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new NotifyDaemon(), 5000, 5000);
             setIsNotifyDaemonRunning(true);
+            timers.add(timer);
         };
 
         if (!isFetchDaemonRunning()){
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new FetchDaemon(), 5000, 5000);
             setIsFetchDaemonRunning(true);
+            timers.add(timer);
         };
 
         if (!isSearchDaemonRunning()){
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new SearchDaemon(), 5000, 300000);
             setIsSearchDaemonRunning(true);
+            timers.add(timer);
         };
         if (!isPingDaemonRunning()){
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new PingDaemon(), 5000, 5000);
             setIsPingDaemonRunning(true);
+            timers.add(timer);
         };
         printStatus();
     }
@@ -126,6 +133,10 @@ public class ConnectionHealth {
         logger.debug("Notify Daemon is running: " + isNotifyDaemonRunning());
         logger.debug("Search Daemon is running: " + isSearchDaemonRunning());
         logger.debug("Ping Daemon is running: " + isSearchDaemonRunning());
+    }
+
+    public static void stopTimers(){
+        timers.forEach(t -> t.cancel());
     }
 
 }

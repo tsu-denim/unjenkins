@@ -81,6 +81,8 @@ public class Main {
                         System.out.println("Shutting down Jetty...");
                         Main.server.stop();
                         System.out.println("Jetty has stopped.");
+                        System.out.println("Stopping timers...");
+                        ConnectionHealth.stopTimers();
                     } catch (Exception ex) {
                         System.out.println("Error when stopping Jetty: " + ex.getMessage());
                     }
