@@ -1,10 +1,14 @@
 package com.kodz.unjenkins.client.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
 public class Action {
 
+    @JsonProperty("_class")
+    private String _class;
     private Integer failCount ;
     private Integer skipCount ;
     private Integer totalCount ;

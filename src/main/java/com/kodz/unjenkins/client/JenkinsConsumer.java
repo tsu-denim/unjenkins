@@ -30,10 +30,10 @@ public class JenkinsConsumer {
         //Tell Jersey to use superior Jackson json mapping instead of default Moxy
         restClient.register(JacksonFeature.class);
         //Enable http logging to the console
-        //restClient.register(new LoggingFilter());
+        restClient.register(new LoggingFilter());
 
         jenkinsResource = WebResourceFactory.newResource(JenkinsResource.class,
-                restClient.target("https://" + Configuration.Setting.getRemoteJenkinsHostDomain() + ":" + Configuration.Setting.getRemoteJenkinsHostPort()));
+                restClient.target("http://" + Configuration.Setting.getRemoteJenkinsHostDomain() + ":" + Configuration.Setting.getRemoteJenkinsHostPort()));
     }
 
     public static String getResourceFilePath(String relativeFilePath) {

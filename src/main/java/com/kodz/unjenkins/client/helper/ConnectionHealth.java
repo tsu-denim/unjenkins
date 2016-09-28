@@ -97,13 +97,13 @@ public class ConnectionHealth {
 
         if (!isNotifyDaemonRunning()){
             Timer timer = new Timer();
-            timer.scheduleAtFixedRate(new NotifyDaemon(), 5000, Configuration.Setting.getDaemonInterval());
+            timer.scheduleAtFixedRate(new NotifyDaemon(), 5000, 5000);
             setIsNotifyDaemonRunning(true);
         };
 
         if (!isFetchDaemonRunning()){
             Timer timer = new Timer();
-            timer.scheduleAtFixedRate(new FetchDaemon(), 5000, Configuration.Setting.getDaemonInterval());
+            timer.scheduleAtFixedRate(new FetchDaemon(), 5000, 5000);
             setIsFetchDaemonRunning(true);
         };
 
@@ -117,11 +117,6 @@ public class ConnectionHealth {
             timer.scheduleAtFixedRate(new PingDaemon(), 5000, 5000);
             setIsPingDaemonRunning(true);
         };
-        if (!isQueryDaemonRunning()){
-            Timer timer = new Timer();
-            timer.scheduleAtFixedRate(new QueryDaemon(), 5000, 5000);
-            setIsQueryDaemonRunning(true);
-        };
         printStatus();
     }
 
@@ -131,7 +126,6 @@ public class ConnectionHealth {
         logger.debug("Notify Daemon is running: " + isNotifyDaemonRunning());
         logger.debug("Search Daemon is running: " + isSearchDaemonRunning());
         logger.debug("Ping Daemon is running: " + isSearchDaemonRunning());
-        logger.debug("Query Daemon is running: " + isQueryDaemonRunning());
     }
 
 }

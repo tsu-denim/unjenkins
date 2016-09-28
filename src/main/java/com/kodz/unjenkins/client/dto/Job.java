@@ -1,9 +1,11 @@
 package com.kodz.unjenkins.client.dto;
 
 
-import javax.annotation.Generated;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@Generated("org.jsonschema2pojo")
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Job {
 
     private String name;

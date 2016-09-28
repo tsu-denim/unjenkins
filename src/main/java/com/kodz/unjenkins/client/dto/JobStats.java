@@ -1,14 +1,19 @@
 package com.kodz.unjenkins.client.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 
-@Generated("org.jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JobStats {
 
+    @JsonProperty("_class")
+    private String _class;
     private String displayName;
     private List<Build> builds = new ArrayList<Build>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

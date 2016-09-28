@@ -1,12 +1,11 @@
 serverSettings:
-  servicePort : 8080
+  servicePort : 8989
   heartbeatInterval : 10000
-  daemonInterval : 30000
   remoteHostDomainForHealthCheck : localhost
   remoteHostPortForHealthCheck : 8888
   sslKeyRepositoryPath : thePath
   sslKeyPassword : javakeys
-  remoteJenkinsHostDomain : jenkins.inintca.com
-  remoteJenkinsHostPort : 8443
-  jenkinsUserName : kurt.waechter@inin.com
-  jenkinsApiToken : 55079fb68d9018d7a57d0633161a415a
+  remoteJenkinsHostDomain : kdzmkzjenkins.northcentralus.cloudapp.azure.com
+  remoteJenkinsHostPort : 8080
+  jenkinsUserName : webadmin
+  jenkinsApiToken : 3a339eefb8927605c851e6d4aaa8755a

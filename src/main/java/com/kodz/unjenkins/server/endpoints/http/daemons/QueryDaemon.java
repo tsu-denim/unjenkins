@@ -17,9 +17,9 @@ public class QueryDaemon extends TimerTask implements Loggable {
     public void run(){
         while (!(ReportPool.QueryQueue.isEmpty())){
             logger().info("Calling db...");
-            GimpyQuery gimpyQuery = ReportPool.QueryQueue.poll();
-            Report report = QueryHelper.getReport(gimpyQuery);
-            ReportPool.safeReports.put(gimpyQuery.reportId, report);
+            //GimpyQuery gimpyQuery = ReportPool.QueryQueue.poll();
+           // Report report = QueryHelper.getReport(gimpyQuery);
+           // ReportPool.safeReports.put(gimpyQuery.reportId, report);
             logger().info("Report added to pool...");
         }
 

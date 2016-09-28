@@ -1,12 +1,15 @@
 package com.kodz.unjenkins.client.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
 public class Build {
-
+    @JsonProperty("_class")
+    private String _class;
     private Integer number;
     private String url;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

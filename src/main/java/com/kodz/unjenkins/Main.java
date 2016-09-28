@@ -97,7 +97,6 @@ public class Main {
         Configuration configuration = new Configuration();
 
         int serverPort = Configuration.Setting.getServicePort();
-        QueryHelper.init();
         startServer(serverPort);
 
     }

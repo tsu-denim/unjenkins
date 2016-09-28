@@ -1,5 +1,7 @@
 package com.kodz.unjenkins.client.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,6 +10,8 @@ import javax.annotation.Generated;
 @Generated("org.jsonschema2pojo")
 public class BuildDetail {
 
+    @JsonProperty("_class")
+    private String _class;
     private List<Action> actions = new ArrayList<Action>();
     private Boolean building;
     private Integer number;
