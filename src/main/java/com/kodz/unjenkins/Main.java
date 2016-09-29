@@ -61,6 +61,7 @@ public class Main {
         ServletHolder subscriptionServlet = new ServletHolder("ws-subscribe", SubscriptionServlet.class);
         context.addServlet(logInfoServlet, "/log/info/*");
         context.addServlet(logDebugServlet, "/log/debug/*");
+        
         context.addServlet(logErrorServlet, "/log/health/*");
         context.addServlet(subscriptionServlet, "/subscribe/job/*");
         context.addServlet(restServlet, "/*");
