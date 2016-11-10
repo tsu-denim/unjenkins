@@ -13,10 +13,11 @@ public class SocketAppender extends AppenderBase<ILoggingEvent> {
 
     public void append(ILoggingEvent event){
         if(event.getLevel().equals(Level.INFO)){
-            InfoRoom.getInstance().writeAllMembers(event.getMessage());
+            String message = event.getFormattedMessage();
+            InfoRoom.getInstance().writeAllMembers(message);
         }
         else if (event.getLevel().equals(Level.DEBUG)){
-            DebugRoom.getInstance().writeAllMembers(event.getMessage());
+            DebugRoom.getInstance().writeAllMembers(event.getFormattedMessage());
         }
 
     }

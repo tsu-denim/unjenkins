@@ -3,6 +3,7 @@ package com.kodz.unjenkins.server.endpoints.websocket.providers;
 import com.kodz.unjenkins.client.JenkinsConsumer;
 import com.kodz.unjenkins.client.dto.View;
 import com.kodz.unjenkins.client.proxy.JenkinsResource;
+import com.kodz.unjenkins.server.dto.JobStatus;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -14,10 +15,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 
@@ -34,14 +32,13 @@ public class JobSearch {
     static StandardAnalyzer analyzer = new StandardAnalyzer();
     static Directory index = new RAMDirectory();
 
-
-
     static View allJobs = new View();
 
     public static void initializeJobSearch(){
         try {
             index = new RAMDirectory();
             IndexWriterConfig config = new IndexWriterConfig(analyzer);
+
 
             IndexWriter w = new IndexWriter(index, config);
             allJobs = JenkinsConsumer.jenkinsResource.getView("All");
@@ -52,8 +49,6 @@ public class JobSearch {
         }
 
     }
-
-
 
     public static void addDoc(IndexWriter w, String title)  {
         Document doc = new Document();
@@ -66,13 +61,15 @@ public class JobSearch {
         }
     }
 
-    public static ArrayList<String> query(String query){
+    public static ArrayList<JobStatus> query(String query){
         if (query.isEmpty()){
-            return new ArrayList<String>();
+            return new ArrayList<JobStatus>();
         }
 
         try {
             Query q = new QueryParser("jobName", analyzer).parse(QueryParser.escape(query));
+
+
             int hitsPerPage = 25;
             IndexReader reader = DirectoryReader.open(index);
             IndexSearcher searcher = new IndexSearcher(reader);
@@ -87,8 +84,12 @@ public class JobSearch {
                     throw new RuntimeException();
                 }
             }).collect(Collectors.toList());
-            ArrayList<String> returnList = new ArrayList<>();
-            returnList.addAll(results);
+            ArrayList<JobStatus> returnList = new ArrayList<>();
+            results.forEach(t -> {
+                JobStatus job = new JobStatus();
+                job.setName(t);
+                returnList.add(job);
+            });
             return returnList;
 
         } catch (ParseException e) {

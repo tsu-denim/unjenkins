@@ -8,6 +8,7 @@ import com.kodz.unjenkins.server.dto.*;
 import com.kodz.unjenkins.server.endpoints.websocket.providers.JobSearch;
 import com.kodz.unjenkins.server.endpoints.websocket.providers.SubscriptionProvider;
 import com.kodz.unjenkins.server.endpoints.websocket.sockets.SubscriptionSocket;
+import com.sun.corba.se.spi.activation.Server;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class SubscriptionRoom {
                         sendMessage(subscription);
                         break;
                     case query:
-                        sendMessage(toJson(JobSearch.query(userEvent.getValues().get(0))), subscriptionSocket);
+                        sendMessage(JobSearch.query(userEvent.getValues().get(0)), subscriptionSocket);
                         break;
                     default:
                         JsonError jsonError = new JsonError();
@@ -97,6 +98,17 @@ public class SubscriptionRoom {
             e1.printStackTrace();
         }
     }
+    public static void sendMessage(ArrayList<JobStatus> jobStatuses, SubscriptionSocket subscriptionSocket) {
+        try {
+            ServerEvent serverEvent = new ServerEvent();
+            serverEvent.setServerEventType(ServerEventType.queryResponse);
+            serverEvent.setJobStatus(jobStatuses);
+            String message = toJson(serverEvent);
+            subscriptionSocket.session.getRemote().sendString(message);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
 
     public static void sendMessage(Subscription subscription) {
         try {
@@ -109,6 +121,8 @@ public class SubscriptionRoom {
             e1.printStackTrace();
         }
     }
+
+
 
     public static String toJson(Object object){
         String jsonString = null;

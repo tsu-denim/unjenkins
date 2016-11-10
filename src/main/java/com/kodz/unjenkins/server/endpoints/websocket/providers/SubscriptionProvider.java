@@ -165,8 +165,7 @@ public class SubscriptionProvider {
 
         if (getJobs().size() > 0) {
             for (String name : jobsToAdd) {
-                for (JobStatus jobStatus : getJobs()) {
-                    if (!(jobStatus.getName().equals(name))) {
+                    if (getJobs().stream().filter(t -> t.getName().equals(name)).count()<1) {
                         try {
                             JobStatus status = getJobStatus(name);
                             SubscriptionPools.safeJobPool.add(status);
@@ -175,7 +174,7 @@ public class SubscriptionProvider {
                             e.printStackTrace();
                         }
                     }
-                }
+
             }
 
         } else {

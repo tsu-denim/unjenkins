@@ -1,8 +1,10 @@
 package com.kodz.unjenkins.server.endpoints.http;
 
 import com.kodz.unjenkins.client.JenkinsConsumer;
+import com.kodz.unjenkins.client.dto.Job;
 import com.kodz.unjenkins.client.dto.View;
 import com.kodz.unjenkins.client.helper.ConnectionHealth;
+import com.kodz.unjenkins.client.proxy.JenkinsResource;
 import com.kodz.unjenkins.server.dto.BuildStatus;
 import com.kodz.unjenkins.server.dto.JobStatus;
 import com.kodz.unjenkins.server.dto.ViewQuery;
@@ -106,13 +108,7 @@ public class MetricProvider {
         metric.setViewQuery(viewQuery);
 
         View view = getCurrentView(viewQuery);
-        try {
-            JobStats jobs = JenkinsConsumer.jenkinsResource.getJob("integration-tests",
-                    URLEncoder.encode("displayName[displayName],builds[number,url]{0,5}", "UTF-8"));
-            String blah = "";
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        };
+
 
         for (JobStats jobStats : getStatuses(view, viewQuery.getRegexFilter())) {JobStatus status = new JobStatus();
             status.setName(jobStats.getDisplayName());
@@ -157,7 +153,7 @@ public class MetricProvider {
 
     private static ArrayList<JobStats> getStatuses(View view, String viewFilter){
         ArrayList<JobStats> jobStatuses = new ArrayList<JobStats>();
-        view.getJobs().stream().filter(t -> t.getName().matches(viewFilter)).forEach(t -> {
+        view.getJobs().stream().forEach(t -> {
             try {
                 jobStatuses.add(JenkinsConsumer.jenkinsResource.getJob(t.getName(),
                         URLEncoder.encode("displayName[displayName],builds[number,url]{0,5}", "UTF-8")));
