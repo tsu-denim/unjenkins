@@ -29,8 +29,11 @@ public class JenkinsConsumer {
         restClient.register(HttpAuthenticationFeature.basic(Configuration.Setting.getJenkinsUserName(), Configuration.Setting.getJenkinsApiToken()));
         //Tell Jersey to use superior Jackson json mapping instead of default Moxy
         restClient.register(JacksonFeature.class);
+
         //Enable http logging to the console
-        restClient.register(new LoggingFilter());
+        //TODO: This is deprecated, change to restClient.register(LoggingFeature.class)
+        //TODO: Come up with way to toggle this logging based on system setting at both BUILD and/or RUNTIME if possible
+        //restClient.register(new LoggingFilter());
 
         jenkinsResource = WebResourceFactory.newResource(JenkinsResource.class,
                 restClient.target("http://" + Configuration.Setting.getRemoteJenkinsHostDomain() + ":" + Configuration.Setting.getRemoteJenkinsHostPort()));

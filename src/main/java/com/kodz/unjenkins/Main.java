@@ -1,14 +1,8 @@
 package com.kodz.unjenkins;
 
-import com.kodz.unjenkins.client.DeploymentBuddyConsumer;
 import com.kodz.unjenkins.client.JenkinsConsumer;
 import com.kodz.unjenkins.client.helper.Configuration;
-import com.kodz.unjenkins.client.helper.ConnectionHealth;
-import com.kodz.unjenkins.server.database.QueryHelper;
-import com.kodz.unjenkins.server.dto.UserEvent;
-import com.kodz.unjenkins.server.dto.UserEventType;
-import com.kodz.unjenkins.server.endpoints.websocket.providers.JobSearch;
-import com.kodz.unjenkins.server.endpoints.websocket.rooms.SubscriptionRoom;
+import com.kodz.unjenkins.client.helper.DaemonMonitor;
 import com.kodz.unjenkins.server.endpoints.websocket.servlets.DebugServlet;
 import com.kodz.unjenkins.server.endpoints.websocket.servlets.ErrorServlet;
 import com.kodz.unjenkins.server.endpoints.websocket.servlets.InfoServlet;
@@ -30,10 +24,16 @@ public class Main {
     private static int serverPort;
     private static Server server ;
 
+    public static void main(String[] args) throws Exception {
+        Configuration configuration = new Configuration();
+        int serverPort = Configuration.Setting.getServicePort();
+        startServer(serverPort);
+
+    }
+
     private static void startServer(int serverPort) throws Exception {
         JenkinsConsumer.initializeClient();
-        DeploymentBuddyConsumer.initializeClient();
-        ConnectionHealth connectionHealth = new ConnectionHealth();
+        DaemonMonitor daemonMonitor = new DaemonMonitor();
         Main.serverPort = serverPort;
         Main.server = configureServer();
         server.setStopTimeout(3000L);
@@ -42,26 +42,38 @@ public class Main {
     }
 
     private static Server configureServer() {
+        //Create config to tell Jetty to consume servlets in the right package
         ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.packages("com.kodz.unjenkins");
+        //Enable Jackson pojo mapping instead of default Moxy library
         resourceConfig.register(JacksonFeature.class);
-        ServletContainer servletContainer = new ServletContainer(resourceConfig);
-        ServletHolder restServlet = new ServletHolder(servletContainer);
+
+        //Initialize server objects and set the port
         Server server = new Server();
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(serverPort);
         server.addConnector(connector);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
+        //Tell Jetty to set the root path to domain only, i.e. example.com/ instead of example.com/somethingElse
         context.setContextPath("/");
+
+        //Initialize REST servlets via the package set in the resourceConfig, Jetty will look for classes that extend Servlet
+        //These child classes are actually created by proxy using a factory method
+        /**
+         * @see JenkinsConsumer
+         * @see com.kodz.unjenkins.client.proxy.JenkinsResource
+         */
+        ServletContainer servletContainer = new ServletContainer(resourceConfig);
+        ServletHolder restServlet = new ServletHolder(servletContainer);
 
         ServletHolder logInfoServlet = new ServletHolder("ws-logInfo", InfoServlet.class);
         ServletHolder logDebugServlet = new ServletHolder("ws-logDebug", DebugServlet.class);
         ServletHolder logErrorServlet = new ServletHolder("ws-logError", ErrorServlet.class);
         ServletHolder subscriptionServlet = new ServletHolder("ws-subscribe", SubscriptionServlet.class);
+
         context.addServlet(logInfoServlet, "/log/info/*");
         context.addServlet(logDebugServlet, "/log/debug/*");
-        
         context.addServlet(logErrorServlet, "/log/health/*");
         context.addServlet(subscriptionServlet, "/subscribe/job/*");
         context.addServlet(restServlet, "/*");
@@ -69,39 +81,4 @@ public class Main {
         server.setHandler(context);
         return server;
     }
-
-    public static void stopServer() throws Exception {
-        System.out.println("Stopping Jetty");
-        try {
-            // Stop the server.
-            new Thread() {
-
-                @Override
-                public void run() {
-                    try {
-                        System.out.println("Shutting down Jetty...");
-                        Main.server.stop();
-                        System.out.println("Jetty has stopped.");
-                        System.out.println("Stopping timers...");
-                        ConnectionHealth.stopTimers();
-                    } catch (Exception ex) {
-                        System.out.println("Error when stopping Jetty: " + ex.getMessage());
-                    }
-                }
-            }.start();
-        } catch (Exception ex) {
-            System.out.println("Unable to stop Jetty: " + ex);
-
-        }
-
-    }
-
-    public static void main(String[] args) throws Exception {
-        Configuration configuration = new Configuration();
-
-        int serverPort = Configuration.Setting.getServicePort();
-        startServer(serverPort);
-
-    }
-
 }

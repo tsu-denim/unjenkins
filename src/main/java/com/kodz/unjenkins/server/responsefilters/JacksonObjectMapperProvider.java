@@ -1,6 +1,5 @@
-package com.kodz.unjenkins.server.responseFilters;
+package com.kodz.unjenkins.server.responsefilters;
 
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 

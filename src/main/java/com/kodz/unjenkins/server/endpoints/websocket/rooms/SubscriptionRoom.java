@@ -3,12 +3,11 @@ package com.kodz.unjenkins.server.endpoints.websocket.rooms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kodz.unjenkins.client.helper.ConnectionHealth;
+import com.kodz.unjenkins.client.helper.DaemonMonitor;
 import com.kodz.unjenkins.server.dto.*;
 import com.kodz.unjenkins.server.endpoints.websocket.providers.JobSearch;
 import com.kodz.unjenkins.server.endpoints.websocket.providers.SubscriptionProvider;
 import com.kodz.unjenkins.server.endpoints.websocket.sockets.SubscriptionSocket;
-import com.sun.corba.se.spi.activation.Server;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,9 +47,6 @@ public class SubscriptionRoom {
 
         public void processCommand (SubscriptionSocket subscriptionSocket, String message){
             try {
-                if (!ConnectionHealth.getHealthCheck().getConnected()){
-                    throw new JsonMappingException("Bad Gateway to Jenkins");
-                }
                 UserEvent userEvent = fromJson(message);
                 switch (userEvent.getUserEventType())
                 {

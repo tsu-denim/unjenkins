@@ -1,11 +1,8 @@
 package com.kodz.unjenkins.server.endpoints.websocket.providers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kodz.unjenkins.client.JenkinsConsumer;
 import com.kodz.unjenkins.client.dto.BuildDetail;
 import com.kodz.unjenkins.client.dto.JobStats;
-import com.kodz.unjenkins.client.proxy.JenkinsResource;
 import com.kodz.unjenkins.server.dto.BuildStatus;
 import com.kodz.unjenkins.server.dto.JobStatus;
 import com.kodz.unjenkins.server.dto.Subscription;
@@ -15,9 +12,7 @@ import com.kodz.unjenkins.server.endpoints.websocket.sockets.SubscriptionSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,11 +22,12 @@ import java.util.stream.Collectors;
  * Created by Kurt on 3/11/16.
  */
 public class SubscriptionProvider {
-    public static Logger logger = LoggerFactory.getLogger(SubscriptionProvider.class);
 
+    public static Logger logger = LoggerFactory.getLogger(SubscriptionProvider.class);
+    private static boolean suppressJobPoolCleanupLogMessage = false;
+    private static boolean suppressSubscriberUpdateLogMessage = false;
 
     public synchronized static CopyOnWriteArrayList<JobStatus> getJobs() {
-
         return SubscriptionPools.safeJobPool;
     }
 
@@ -82,18 +78,24 @@ public class SubscriptionProvider {
     }
 
     public synchronized static void updateJobs() {
-        if (SubscriptionPools.safeJobPool.size() > 0) {
-
+        if (!(SubscriptionPools.safeJobPool.isEmpty())) {
+            suppressSubscriberUpdateLogMessage = false;
             logger.info("Updating job pool...");
             for (int i = 0; i < getJobs().size(); i++) {
                 String jobName = getJobs().get(i).getName();
                 try {
                     JobStatus status = getJobStatus(jobName);
 
-                    if (updateable(getJobs().get(i), status)) {
+                    if (updatable(getJobs().get(i), status)) {
                         logger.info("Jobs do not match, updating...");
                         getJobs().set(i, status);
-                        SubscriptionPools.jobUpdateQueue.offer(status);
+                        if(SubscriptionPools.jobUpdateQueue.stream().filter(t -> t.getName().equals(status.getName())).count() < 1){
+                            logger.info("Adding job {} to update queue.", status.getName());
+                            SubscriptionPools.jobUpdateQueue.offer(status);
+                        }
+                        else {
+                            logger.info("Job {} already in queue, ignoring...", status.getName());
+                        }
                     }
 
                 } catch (UnsupportedEncodingException e) {
@@ -103,6 +105,7 @@ public class SubscriptionProvider {
 
             for (JobStatus jobStatus; (jobStatus = SubscriptionPools.jobUpdateQueue.poll()) != null; ) {
                 for (Subscription subscription : SubscriptionPools.safeSubscriptions) {
+                    //TODO: This is needs updated to use a stream filter instead, this creates a weird cartesian product
                     for (JobStatus job : subscription.getJobs()) {
                         if (job.getName().equals(jobStatus.getName())) {
                             UpdateNotification updateNotification = new UpdateNotification();
@@ -113,12 +116,12 @@ public class SubscriptionProvider {
                     }
                 }
             }
+        } else {
+            if (!suppressSubscriberUpdateLogMessage){
+                suppressSubscriberUpdateLogMessage = true;
+                logger.info("No subscribers connected, nothing to update.");
+            }
         }
-        else {
-            logger.info("No subscribers connected, nothing to update.");
-        }
-
-
     }
 
     public synchronized static void cleanUpJobs() {
@@ -136,6 +139,7 @@ public class SubscriptionProvider {
         uniquePool.removeAll(uniqueActive);
 
         if (uniquePool.size() > 0) {
+            suppressJobPoolCleanupLogMessage = false;
             logger.info("Cleanup: Jobs Pool contains {} orhpaned jobs. Removing...", uniquePool.size());
             ArrayList<JobStatus> jobsToDelete = new ArrayList<>();
             for (JobStatus jobStatus : getJobs()) {
@@ -143,37 +147,36 @@ public class SubscriptionProvider {
                     if (jobStatus.getName().equals(jobToDelete)) {
                         jobsToDelete.add(jobStatus);
                     }
-
                 }
             }
 
             getJobs().removeAll(jobsToDelete);
-
             List<String> allUpdatedPoolNames = getJobs().stream().map(t -> t.getName()).collect(Collectors.toList());
             Set<String> uniqueUpdatedPool = new HashSet<String>(allUpdatedPoolNames);
 
             uniqueUpdatedPool.removeAll(uniqueActive);
             logger.info("Cleanup complete. {} orphaned entries remain.", uniqueUpdatedPool.size());
+        } else {
+            if(!suppressJobPoolCleanupLogMessage){
+                suppressJobPoolCleanupLogMessage =true;
+                logger.info("Nothing to cleanup.");
+            }
         }
-        else {
-            logger.info("Nothing to cleanup.");
-        }
-
     }
 
     public synchronized static void addJobsToPool(ArrayList<String> jobsToAdd) {
 
         if (getJobs().size() > 0) {
             for (String name : jobsToAdd) {
-                    if (getJobs().stream().filter(t -> t.getName().equals(name)).count()<1) {
-                        try {
-                            JobStatus status = getJobStatus(name);
-                            SubscriptionPools.safeJobPool.add(status);
+                if (getJobs().stream().filter(t -> t.getName().equals(name)).count() < 1) {
+                    try {
+                        JobStatus status = getJobStatus(name);
+                        SubscriptionPools.safeJobPool.add(status);
 
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
                     }
+                }
 
             }
 
@@ -192,12 +195,11 @@ public class SubscriptionProvider {
 
     }
 
-    public static boolean updateable(JobStatus old, JobStatus fresh) {
+    public static boolean updatable(JobStatus old, JobStatus fresh) {
         BuildStatus oldBuild = old.getBuildStatusList().stream().min(BuildStatus::compareTo).get();
         BuildStatus newBuild = fresh.getBuildStatusList().stream().min(BuildStatus::compareTo).get();
         boolean isBuildFresh = newBuild.getBuildNumber() > oldBuild.getBuildNumber();
         boolean isBuildSame = newBuild.getBuildNumber() == oldBuild.getBuildNumber();
-
 
         if (isBuildFresh) {
             logger.info("new build found: {} is newer than {}", newBuild.getBuildNumber(), oldBuild.getBuildNumber());
@@ -222,6 +224,7 @@ public class SubscriptionProvider {
                 URLEncoder.encode("displayName[displayName],builds[number,url]{0,5}", "UTF-8"));
         JobStatus status = new JobStatus();
         status.setName(jobStats.getDisplayName());
+
         List<BuildStatus> buildStatusList = jobStats.getBuilds().stream().parallel().map(t -> {
             try {
                 BuildDetail buildDetail = JenkinsConsumer.jenkinsResource.getBuildDetail(jobStats.getDisplayName(),
@@ -232,15 +235,15 @@ public class SubscriptionProvider {
                 throw new RuntimeException();
             }
         }).collect(Collectors.toList());
+
         status.setBuildStatusList(buildStatusList);
         Collections.sort(status.getBuildStatusList());
 
         return status;
-
     }
 
-    public static void sendPings(){
+    public static void sendPings() {
         SubscriptionPools.safeSubscriptions.forEach(t -> t.getSubscriptionSocket().sendPing());
-        }
+    }
 
 }

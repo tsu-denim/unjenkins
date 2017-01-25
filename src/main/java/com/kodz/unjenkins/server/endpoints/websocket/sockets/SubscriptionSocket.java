@@ -1,13 +1,13 @@
 package com.kodz.unjenkins.server.endpoints.websocket.sockets;
 
-import com.kodz.unjenkins.client.helper.Configuration;
-import com.kodz.unjenkins.server.endpoints.websocket.rooms.InfoRoom;
+import com.kodz.unjenkins.logging.Loggable;
 import com.kodz.unjenkins.server.endpoints.websocket.rooms.SubscriptionRoom;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -16,7 +16,7 @@ import java.nio.ByteBuffer;
  * Created by Kurt on 3/11/16.
  */
 @WebSocket
-public class SubscriptionSocket {
+public class SubscriptionSocket implements Loggable{
         public Session session;
 
         @OnWebSocketConnect
@@ -26,7 +26,7 @@ public class SubscriptionSocket {
             try {
                 session.getRemote().sendString("Welcome to the Deployment Buddy Subscription Terminal!");
             } catch (IOException e) {
-                e.printStackTrace();
+                logger().error("Failed to send welcome message, IO Exception.", e);
             }
 
         }
@@ -37,7 +37,7 @@ public class SubscriptionSocket {
            try {
                this.session.getRemote().sendPing(payload);
            } catch (IOException e) {
-               e.printStackTrace();
+               logger().error("Failed to send ping, IO Exception.", e);
            }
        }
 

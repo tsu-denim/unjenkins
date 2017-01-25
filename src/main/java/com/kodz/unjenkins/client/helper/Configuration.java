@@ -14,7 +14,7 @@ import java.net.URL;
  * Created by Kurt on 1/22/16.
  */
 public class Configuration {
-    public static Logger logger = LoggerFactory.getLogger(Configuration.class);
+    public static final Logger logger = LoggerFactory.getLogger(Configuration.class);
     static {
 
         URL resource = Configuration.class.getClassLoader().getResource("settings.yaml");
@@ -29,7 +29,7 @@ public class Configuration {
             final Configuration configuration = (Configuration) yaml.load(resource.openStream());
             Configuration.Setting = configuration.getServerSettings();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Could not access yaml file, IO error",e);
         }
     }
 

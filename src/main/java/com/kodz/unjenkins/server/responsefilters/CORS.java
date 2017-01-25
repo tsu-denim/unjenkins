@@ -1,4 +1,4 @@
-package com.kodz.unjenkins.server.responseFilters;
+package com.kodz.unjenkins.server.responsefilters;
 
 
 import javax.ws.rs.NameBinding;

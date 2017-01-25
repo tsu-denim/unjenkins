@@ -1,10 +1,8 @@
 package com.kodz.unjenkins.server.endpoints.http;
 
 import com.kodz.unjenkins.client.JenkinsConsumer;
-import com.kodz.unjenkins.client.dto.Job;
 import com.kodz.unjenkins.client.dto.View;
-import com.kodz.unjenkins.client.helper.ConnectionHealth;
-import com.kodz.unjenkins.client.proxy.JenkinsResource;
+import com.kodz.unjenkins.client.helper.DaemonMonitor;
 import com.kodz.unjenkins.server.dto.BuildStatus;
 import com.kodz.unjenkins.server.dto.JobStatus;
 import com.kodz.unjenkins.server.dto.ViewQuery;
@@ -35,8 +33,6 @@ public class MetricProvider {
     private static long timeToLive = 10000L;
 
     public synchronized static Metric getMetric(ViewQuery viewQuery) throws ViewNotFound, JenkinsNotAvailable {
-        if (ConnectionHealth.getHealthCheck().getConnected() ==false){
-            throw new JenkinsNotAvailable();}
         int cachedCount = 0;
 
         for (Metric metric : cachedMetrics) {
