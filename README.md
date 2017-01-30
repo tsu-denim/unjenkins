@@ -17,3 +17,6 @@ This is the un-jenkins repository, which contains the source for un-jenkins. un-
 * Distribution is easy. Place this jar file wherever you would like to run un-jenkins and fire off the command "java -jar unjenkins-1.0-SNAPSHOT.jar". The exact file name of the jar will depend on the version that was built. The server will start, the default port is 8080, although this can be changed by passing in an argument for port number "java -jar unjenkins-1.0-SNAPSHOT.jar 8888"
 * Verify the server is running by accessing the test dashboard http://localhost:8080/api/dashboard. It should return a set of metrics related to the Content Management API & UI Tests.
 * Access any Jenkins view you like by appending the view/Viewname1/view/Viewname2 portion of a Jenkins url. 
+
+
+![Build Status](https://travis-ci.org/tsu-denim/unjenkins.svg?branch=master)
