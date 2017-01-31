@@ -5,7 +5,7 @@ serverSettings:
   remoteHostPortForHealthCheck : 8888
   sslKeyRepositoryPath : thePath
   sslKeyPassword : javakeys
-  remoteJenkinsHostDomain : jenkins.bbpd.io
-  remoteJenkinsHostPort : 80
+  remoteJenkinsHostDomain : localhost
+  remoteJenkinsHostPort : 8080
   jenkinsUserName : kwaechter
   jenkinsApiToken : 4c69fca9d9459bdf941d8d72fa23926b
