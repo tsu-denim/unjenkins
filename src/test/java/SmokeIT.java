@@ -1,26 +1,30 @@
 import com.kodz.unjenkins.client.JenkinsConsumer;
 import com.kodz.unjenkins.client.dto.JobStats;
 import com.kodz.unjenkins.client.helper.Configuration;
+import com.kodz.unjenkins.server.dto.BuildStatus;
 import com.kodz.unjenkins.server.dto.JobStatus;
 import com.kodz.unjenkins.server.dto.Subscription;
 import com.kodz.unjenkins.server.endpoints.websocket.providers.SubscriptionProvider;
 
+import org.awaitility.Duration;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.concurrent.Callable;
 
 
 import javax.ws.rs.core.Response;
 
-/**
- * Created by kwaechter on 1/31/17.
- */
+import static org.awaitility.Awaitility.await;
+
+
 public class SmokeIT {
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeClass
+    public static void setup() throws Exception {
         Configuration configuration = new Configuration();
         JenkinsConsumer.initializeClient();
     }
@@ -45,11 +49,22 @@ public class SmokeIT {
     public void isUpdateableTrueTest() throws UnsupportedEncodingException, InterruptedException {
         String jobName = "TestBuilds";
         JobStatus jobStatusA = SubscriptionProvider.getJobStatus(jobName);
-        Response response = JenkinsConsumer.jenkinsResource.getNewBuild(jobName, URLEncoder.encode("0sec", "UTF-8"));
-        Thread.sleep(1000);
+        //Trigger new build in Jenkins
+        JenkinsConsumer.jenkinsResource.getNewBuild(jobName, URLEncoder.encode("0sec", "UTF-8"));
+
+        await().atMost(Duration.TWO_SECONDS).until(newBuildIsAdded(jobStatusA));
         JobStatus jobStatusB = SubscriptionProvider.getJobStatus(jobName);
+        assert SubscriptionProvider.updatable(jobStatusA, jobStatusB) : "This should return true, build groups are different.";
+    }
 
-        assert SubscriptionProvider.updatable(jobStatusA, jobStatusB) :  "This should return true, build groups are different.";
-
+    private Callable<Boolean> newBuildIsAdded(JobStatus jobStatus) {
+        return () -> {
+            JobStatus jobStatusB = SubscriptionProvider.getJobStatus(jobStatus.getName());
+            BuildStatus oldBuild = jobStatus.getBuildStatusList().stream().min(BuildStatus::compareTo).orElse(null);
+            BuildStatus newBuild = jobStatusB.getBuildStatusList().stream().min(BuildStatus::compareTo).orElse(null);
+            assert oldBuild != null : "Can't compare without any builds";
+            assert newBuild != null : "Can't compare without any builds";
+            return newBuild.getBuildNumber() > oldBuild.getBuildNumber();
+        };
     }
 }
