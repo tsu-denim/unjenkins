@@ -11,3 +11,4 @@ before_install:
 - docker ps -a
 - docker exec -it testJenkins git clone https://github.com/tsu-denim/unjenkins.git /var/jenkins_home/jobs
 - docker restart testJenkins
+- curl http://localhost:8080/api/json?pretty=true
