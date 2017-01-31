@@ -3,7 +3,6 @@ package com.kodz.unjenkins.client.proxy;
 import com.kodz.unjenkins.client.dto.View;
 import com.kodz.unjenkins.client.dto.BuildDetail;
 import com.kodz.unjenkins.client.dto.JobStats;
-import com.sun.deploy.net.URLEncoder;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
