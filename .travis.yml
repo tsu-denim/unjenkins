@@ -7,7 +7,7 @@ services:
 
 before_install:
 - docker pull jenkins
-- docker run -p 8080:8080 -p 50000:50000 --name testJenkins --env JAVA_OPTS="-Dhudson.Main.development=true -Djenkins.install.runSetupWizard=false" jenkins
+- docker run -d -p 8080:8080 -p 50000:50000 --name testJenkins --env JAVA_OPTS="-Dhudson.Main.development=true -Djenkins.install.runSetupWizard=false" jenkins
 - docker ps -a
 - docker exec -it testJenkins git clone https://github.com/tsu-denim/unjenkins.git /var/jenkins_home/jobs
 - docker restart testJenkins
