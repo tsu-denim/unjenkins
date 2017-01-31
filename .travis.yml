@@ -16,5 +16,5 @@ before_install:
 - rtn=$(curl http://localhost:8080/job/Test/api/json)
 - echo $rtn
 
-install: mvn verify -B
+install: mvn -q clean verify
 
