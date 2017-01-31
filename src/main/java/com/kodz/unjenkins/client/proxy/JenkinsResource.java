@@ -3,9 +3,11 @@ package com.kodz.unjenkins.client.proxy;
 import com.kodz.unjenkins.client.dto.View;
 import com.kodz.unjenkins.client.dto.BuildDetail;
 import com.kodz.unjenkins.client.dto.JobStats;
+import com.sun.deploy.net.URLEncoder;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 
 /**
@@ -15,11 +17,19 @@ import javax.ws.rs.core.MediaType;
 
 public interface JenkinsResource {
 
+
+
     @GET
     @Path("/job/{jobName}/api/json")
     @Consumes(MediaType.APPLICATION_JSON)
 
     JobStats getJob(@PathParam("jobName") String jobName, @QueryParam("tree") String json);
+
+
+    @GET
+    @Path("/job/{jobName}/build")
+    @Consumes(MediaType.TEXT_PLAIN)
+    Response getNewBuild(@PathParam("jobName") String jobName, @QueryParam("delay") String delay);
 
     @GET
     @Path("/job/{jobName}/{jobId}/api/json")
