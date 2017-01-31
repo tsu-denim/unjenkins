@@ -13,15 +13,13 @@ import java.net.URLEncoder;
 public class SmokeIT {
 
     @Test
-    public void smokeTest(){
+    public void smokeTest() throws Exception {
         Configuration configuration = new Configuration();
-        try {
+
             JenkinsConsumer.initializeClient();
             JobStats jobStats = JenkinsConsumer.jenkinsResource.getJob("Test",
                     URLEncoder.encode("displayName[displayName],builds[number,url]{0,5}", "UTF-8"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
 
     }
 }
