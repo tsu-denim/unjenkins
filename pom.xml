@@ -126,6 +126,8 @@
                 <version>2.19.1</version>
                 <executions>
                     <execution>
+                        <id>run-tests</id>
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
@@ -169,7 +171,7 @@
 
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>

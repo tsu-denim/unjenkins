@@ -2,6 +2,7 @@ import com.kodz.unjenkins.client.JenkinsConsumer;
 import com.kodz.unjenkins.client.dto.JobStats;
 import com.kodz.unjenkins.client.helper.Configuration;
 
+
 import org.junit.Test;
 
 import java.net.URLEncoder;
@@ -9,7 +10,7 @@ import java.net.URLEncoder;
 /**
  * Created by kwaechter on 1/31/17.
  */
-public class ITSmoke {
+public class SmokeIT {
 
     @Test
     public void smokeTest(){
