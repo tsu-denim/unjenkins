@@ -15,6 +15,5 @@ before_install:
 - rtn=$(curl http://localhost:8080/api/json?pretty=true)
 - echo $rtn
 
-install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+install: mvn verify
 
-script: mvn test && mvn verify
