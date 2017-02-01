@@ -18,3 +18,11 @@ before_install:
 
 install: mvn -q clean verify
 
+addons:
+  sonarqube:
+    token:
+      secure: 4e991e3c9bd049aa16978d336dc56d0d99873f94
+
+script:
+- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+
