@@ -33,7 +33,7 @@ public class JenkinsConsumer {
         //Enable http logging to the console
         //TODO: This is deprecated, change to restClient.register(LoggingFeature.class)
         //TODO: Come up with way to toggle this logging based on system setting at both BUILD and/or RUNTIME if possible
-        restClient.register(new LoggingFilter());
+        //restClient.register(new LoggingFilter());
 
         jenkinsResource = WebResourceFactory.newResource(JenkinsResource.class,
                 restClient.target("http://" + Configuration.Setting.getRemoteJenkinsHostDomain() + ":" + Configuration.Setting.getRemoteJenkinsHostPort()));

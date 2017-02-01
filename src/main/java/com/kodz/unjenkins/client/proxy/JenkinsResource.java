@@ -6,6 +6,7 @@ import com.kodz.unjenkins.client.dto.JobStats;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 
 /**
@@ -18,8 +19,13 @@ public interface JenkinsResource {
     @GET
     @Path("/job/{jobName}/api/json")
     @Consumes(MediaType.APPLICATION_JSON)
-
     JobStats getJob(@PathParam("jobName") String jobName, @QueryParam("tree") String json);
+
+
+    @GET
+    @Path("/job/{jobName}/build")
+    @Consumes(MediaType.TEXT_PLAIN)
+    Response getNewBuild(@PathParam("jobName") String jobName, @QueryParam("delay") String delay);
 
     @GET
     @Path("/job/{jobName}/{jobId}/api/json")

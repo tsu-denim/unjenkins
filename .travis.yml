@@ -9,12 +9,22 @@ before_install:
 - docker pull jenkins
 - docker run -d -p 8080:8080 -p 50000:50000 --name testJenkins --env JAVA_OPTS="-Dhudson.Main.development=true -Djenkins.install.runSetupWizard=false" jenkins
 - docker ps -a
-- docker exec -it testJenkins git clone https://github.com/tsu-denim/unjenkins.git /var/jenkins_home/jobs
-- docker restart testJenkins
-- sleep 15
-- rtn=$(curl http://localhost:8080/api/json?pretty=true)
+- docker exec -it testJenkins git clone https://github.com/tsu-denim/unjenkinsTestFiles.git /var/jenkins_home/jobs
+- sleep 10
+- curl -X POST http://localhost:8080/reload
+- sleep 10
+- rtn=$(curl http://localhost:8080/job/Test/api/json)
 - echo $rtn
 
-install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+install: mvn -q clean verify
 
-script: mvn test && mvn verify
+addons:
+  sonarqube:
+    token:
+      secure: 4e991e3c9bd049aa16978d336dc56d0d99873f94
+  branches:
+    - feature/fixes
+
+script:
+- sonar-scanner
+

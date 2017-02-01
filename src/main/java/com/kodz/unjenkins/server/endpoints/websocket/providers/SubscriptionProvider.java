@@ -196,25 +196,31 @@ public class SubscriptionProvider {
     }
 
     public static boolean updatable(JobStatus old, JobStatus fresh) {
-        BuildStatus oldBuild = old.getBuildStatusList().stream().min(BuildStatus::compareTo).get();
-        BuildStatus newBuild = fresh.getBuildStatusList().stream().min(BuildStatus::compareTo).get();
-        boolean isBuildFresh = newBuild.getBuildNumber() > oldBuild.getBuildNumber();
-        boolean isBuildSame = newBuild.getBuildNumber() == oldBuild.getBuildNumber();
+        boolean isBuildFresh = false;
+        boolean isBuildSame = false;
 
-        if (isBuildFresh) {
-            logger.info("new build found: {} is newer than {}", newBuild.getBuildNumber(), oldBuild.getBuildNumber());
-            return true;
-        } else if (isBuildSame) {
-            if (oldBuild.isBuilding()) {
-                if (!newBuild.isBuilding()) {
-                    logger.info("build just finished: {} building status went from {} to {}",
-                            oldBuild.getBuildNumber(), oldBuild.isBuilding(), newBuild.isBuilding());
-                    return true;
+        if (!old.getBuildStatusList().isEmpty() && !fresh.getBuildStatusList().isEmpty()){
+            BuildStatus oldBuild = old.getBuildStatusList().stream().min(BuildStatus::compareTo).get();
+            BuildStatus newBuild = fresh.getBuildStatusList().stream().min(BuildStatus::compareTo).get();
+            isBuildFresh = newBuild.getBuildNumber() > oldBuild.getBuildNumber();
+            isBuildSame = newBuild.getBuildNumber() == oldBuild.getBuildNumber();
+
+            if (isBuildFresh) {
+                logger.info("new build found: {} is newer than {}", newBuild.getBuildNumber(), oldBuild.getBuildNumber());
+                return true;
+            } else if (isBuildSame) {
+                if (oldBuild.isBuilding()) {
+                    if (!newBuild.isBuilding()) {
+                        logger.info("build just finished: {} building status went from {} to {}",
+                                oldBuild.getBuildNumber(), oldBuild.isBuilding(), newBuild.isBuilding());
+                        return true;
+                    }
                 }
             }
+            logger.info("job still fresh: old {}, new {}, isBuildingOld {}, isBuildingNew {}",
+                    oldBuild.getBuildNumber(), newBuild.getBuildNumber(), oldBuild.isBuilding(), newBuild.isBuilding());
         }
-        logger.info("job still fresh: old {}, new {}, isBuildingOld {}, isBuildingNew {}",
-                oldBuild.getBuildNumber(), newBuild.getBuildNumber(), oldBuild.isBuilding(), newBuild.isBuilding());
+
         return false;
     }
 
