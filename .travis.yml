@@ -24,5 +24,5 @@ addons:
       secure: 4e991e3c9bd049aa16978d336dc56d0d99873f94
 
 script:
-- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+- sonar-scanner
 
